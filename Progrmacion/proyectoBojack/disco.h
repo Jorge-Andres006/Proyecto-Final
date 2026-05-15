@@ -26,7 +26,7 @@ public:
 
     void actualizar(double dt) override;
 
-    void aplicarFriccion();
+    void aplicarFriccion(double dt);
 
     void aplicarImpulso(const Vector2D &impulso);
 

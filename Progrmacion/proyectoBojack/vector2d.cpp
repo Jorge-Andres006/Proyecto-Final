@@ -116,6 +116,8 @@ double Vector2D::distancia(const Vector2D &otro) const {
     return sqrt(dx * dx + dy * dy);
 }
 
+double Vector2D::distanciaCuadrada(const Vector2D& otro) const { double dx = x - otro.x; double dy = y - otro.y; return dx * dx + dy * dy; }
+
 void Vector2D::limitar(double maximo) {
 
     double mag = magnitud();

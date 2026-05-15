@@ -14,6 +14,7 @@ SOURCES += \
     jugador.cpp \
     main.cpp \
     mainwindow.cpp \
+    mundo.cpp \
     vector2d.cpp
 
 HEADERS += \
@@ -21,6 +22,7 @@ HEADERS += \
     entidad.h \
     jugador.h \
     mainwindow.h \
+    mundo.h \
     vector2d.h
 
 FORMS += \

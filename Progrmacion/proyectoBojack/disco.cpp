@@ -1,4 +1,5 @@
 #include "disco.h"
+#include <cmath>
 
 using namespace std;
 
@@ -29,7 +30,7 @@ Disco::Disco(const Vector2D &posicion, const Vector2D &velocidad, double radio,
 
 void Disco::actualizar(double dt) {
 
-    aplicarFriccion();
+    aplicarFriccion(dt);
 
     limitarVelocidad();
 
@@ -41,15 +42,7 @@ void Disco::aplicarImpulso(const Vector2D &impulso) {
     velocidad += impulso / masa;
 }
 
-void Disco::aplicarFriccion() {
-
-    velocidad *= friccion;
-
-    // Evita micro-movimientos infinitos
-    if (velocidad.magnitud() < 0.01) {
-        velocidad.setXY(0.0, 0.0);
-    }
-}
+void Disco::aplicarFriccion(double dt) { velocidad *= pow(friccion, dt); if (velocidad.magnitudCuadrada() < 0.0001) { velocidad.setXY(0.0, 0.0); } }
 
 void Disco::rebotarX() { velocidad.setX(-velocidad.getX() * rebote); }
 

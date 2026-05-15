@@ -48,6 +48,7 @@ public:
     double cross(const Vector2D &otro) const;
 
     double distancia(const Vector2D &otro) const;
+    double distanciaCuadrada(const Vector2D& otro) const;
 
     // Limita la magnitud del vector
     void limitar(double maximo);

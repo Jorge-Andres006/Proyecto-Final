@@ -21,9 +21,7 @@ void Entidad::mover(double dt) { posicion += velocidad * dt; }
 
 bool Entidad::colisionaCon(const Entidad &otra) const {
 
-    double distanciaCentros = posicion.distancia(otra.posicion);
-
-    return (distanciaCentros <= (radio + otra.radio));
+    double radios = radio + otra.radio; return posicion.distanciaCuadrada(otra.posicion) <= (radios * radios);
 }
 
 Vector2D Entidad::getPosicion() const { return posicion; }
