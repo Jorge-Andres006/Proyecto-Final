@@ -22,7 +22,7 @@ public:
     Disco();
 
     Disco(const Vector2D &posicion, const Vector2D &velocidad, double radio,
-        double masa, double friccion, double rebote, double velocidadMaxima);
+          double masa, double friccion, double rebote, double velocidadMaxima);
 
     void actualizar(double dt) override;
 
