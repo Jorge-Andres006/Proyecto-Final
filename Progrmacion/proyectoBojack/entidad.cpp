@@ -8,8 +8,7 @@ Entidad::Entidad() {
     radio = 0.0;
 }
 
-Entidad::Entidad(const Vector2D &posicion, const Vector2D &velocidad,
-                 double radio) {
+Entidad::Entidad(const Vector2D &posicion, const Vector2D &velocidad,double radio) {
     this->posicion = posicion;
     this->velocidad = velocidad;
     this->radio = radio;

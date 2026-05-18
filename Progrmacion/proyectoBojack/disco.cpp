@@ -13,7 +13,9 @@ Disco::Disco() : Entidad() {
 
     velocidadMaxima = VELOCIDAD_MAXIMA_BASE;
 }
+Disco::~Disco(){
 
+}
 Disco::Disco(const Vector2D &posicion, const Vector2D &velocidad, double radio,
              double masa, double friccion, double rebote,
              double velocidadMaxima)

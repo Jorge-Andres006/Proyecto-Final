@@ -20,7 +20,7 @@ public:
     static constexpr double VELOCIDAD_MAXIMA_BASE = 30.0;
 
     Disco();
-
+    ~Disco();
     Disco(const Vector2D &posicion, const Vector2D &velocidad, double radio,
           double masa, double friccion, double rebote, double velocidadMaxima);
 
