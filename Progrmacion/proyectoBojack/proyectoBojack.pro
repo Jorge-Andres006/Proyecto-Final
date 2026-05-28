@@ -1,4 +1,4 @@
-QT       += core gui
+QT += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,6 +12,7 @@ SOURCES += \
     arco.cpp \
     disco.cpp \
     entidad.cpp \
+    juego.cpp \
     jugador.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     arco.h \
     disco.h \
     entidad.h \
+    juego.h \
     jugador.h \
     mainwindow.h \
     mundo.h \
@@ -44,3 +46,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    recursos.qrc \

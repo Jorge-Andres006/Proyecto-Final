@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>Imagenes/FondoMenu.png</file>
+        <file>Imagenes/BoJackIntro.wav</file>
+    </qresource>
+</RCC>

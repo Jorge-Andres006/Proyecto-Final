@@ -1,54 +1,59 @@
 #include "mainwindow.h"
-
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-    ui(new Ui::MainWindow),
-
-    nivel(100.0, 100.0)
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    // CREAR ESCENA
+    resize(1280, 720);
+
+    setFixedSize(1280, 720);
+
     scene = new QGraphicsScene(this);
 
     ui->graphicsView->setScene(scene);
 
-    ui->graphicsView->setFixedSize(800, 600);
+    ui->graphicsView->setHorizontalScrollBarPolicy(
+        Qt::ScrollBarAlwaysOff);
 
-    scene->setSceneRect(0, 0, 100, 100);
+    ui->graphicsView->setVerticalScrollBarPolicy(
+        Qt::ScrollBarAlwaysOff);
 
-    // INICIAR NIVEL
-    nivel.iniciar();
+    juego = new Juego(scene);
 
-    // CREAR JUGADOR GRAFICO
-    jugadorGrafico = scene->addEllipse(
-        0,
-        0,
-        10,
-        10
+    juego->mostrarMenu();
+
+    audioOutput = new QAudioOutput(this);
+
+    musicaMenu = new QMediaPlayer(this);
+    musicaMenu->setAudioOutput(audioOutput);
+    musicaMenu->setSource(
+        QUrl("qrc:/new/prefix1/Imagenes/BoJackIntro.wav")
         );
-
-    // CREAR DISCO GRAFICO
-    discoGrafico = scene->addEllipse(
-        0,
-        0,
-        6,
-        6
-        );
-
-    // TIMER
-    timer = new QTimer(this);
+    audioOutput->setVolume(0.35);
+    musicaMenu->setLoops(QMediaPlayer::Infinite);
+    musicaMenu->play();
 
     connect(
-        timer,
-        &QTimer::timeout,
+        ui->botonNivel1,
+        &QPushButton::clicked,
         this,
-        &MainWindow::actualizarJuego
+        &MainWindow::iniciarNivel1
         );
-
-    timer->start(16);
+    connect(
+        ui->botonNivel2,
+        &QPushButton::clicked,
+        this,
+        &MainWindow::iniciarNivel2
+        );
+    connect(
+        ui->botonSalir,
+        &QPushButton::clicked,
+        this,
+        &MainWindow::close
+        );
 }
 
 MainWindow::~MainWindow()
@@ -56,27 +61,28 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::actualizarJuego()
+void MainWindow::iniciarNivel1()
 {
-    double dt = 0.016;
+    musicaMenu->stop();
+    ui->botonNivel1->hide();
 
-    nivel.actualizar(dt);
+    ui->botonNivel2->hide();
 
-    // ACTUALIZAR POSICION JUGADOR
-    Vector2D posJugador =
-        nivel.getJugador().getPosicion();
+    ui->botonSalir->hide();
 
-    jugadorGrafico->setPos(
-        posJugador.getX(),
-        posJugador.getY()
-        );
-
-    // ACTUALIZAR POSICION DISCO
-    Vector2D posDisco =
-        nivel.getDisco().getPosicion();
-
-    discoGrafico->setPos(
-        posDisco.getX(),
-        posDisco.getY()
-        );
+    juego->iniciarNivel1();
 }
+
+void MainWindow::iniciarNivel2()
+{
+    musicaMenu->stop();
+    ui->botonNivel1->hide();
+
+    ui->botonNivel2->hide();
+
+    ui->botonSalir->hide();
+
+    juego->iniciarNivel2();
+}
+
+

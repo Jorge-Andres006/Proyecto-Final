@@ -13,8 +13,7 @@ public:
 
     Obstaculo();
     ~Obstaculo();
-    Obstaculo(const Vector2D &posicion,
-              double radio);
+    Obstaculo(const Vector2D &posicion,double radio);
 
     void actualizar(double dt) override;
 

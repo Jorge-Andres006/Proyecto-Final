@@ -6,7 +6,7 @@ NivelEntrenamiento::NivelEntrenamiento(double ancho, double alto)
     : Nivel(ancho, alto),
 
     jugador("Bojack",
-            Vector2D(ancho / 2.0, alto - 15.0),
+            Vector2D(ancho / 2.0, alto - 100.0),
             5.0,
             10.0,
             5.0,
@@ -21,9 +21,9 @@ NivelEntrenamiento::NivelEntrenamiento(double ancho, double alto)
           0.8,
           30.0),
 
-    arco(Vector2D(ancho / 2.0 - 15.0, 5.0),
-         30.0,
-         5.0) {
+    arco(Vector2D(ancho / 2.0 - 100.0, 40.0),
+         200.0,
+         30.0) {
 
     goles = 0;
 

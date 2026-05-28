@@ -2,14 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 #include <QGraphicsScene>
-
-#include <QGraphicsEllipseItem>
-
-#include <QTimer>
-
-#include "nivelEntrenamiento.h"
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include "juego.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,9 +23,13 @@ public:
 
     ~MainWindow();
 
+
 private slots:
 
-    void actualizarJuego();
+    void iniciarNivel1();
+
+    void iniciarNivel2();
+
 
 private:
 
@@ -37,13 +37,10 @@ private:
 
     QGraphicsScene *scene;
 
-    QTimer *timer;
+    Juego *juego;
+    QMediaPlayer *musicaMenu;
 
-    NivelEntrenamiento nivel;
-
-    QGraphicsEllipseItem *jugadorGrafico;
-
-    QGraphicsEllipseItem *discoGrafico;
+    QAudioOutput *audioOutput;
 };
 
 #endif
