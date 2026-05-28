@@ -6,6 +6,7 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include "juego.h"
+#include <QKeyEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,6 +31,8 @@ private slots:
 
     void iniciarNivel2();
 
+    void volverMenu();
+
 
 private:
 
@@ -39,8 +42,22 @@ private:
 
     Juego *juego;
     QMediaPlayer *musicaMenu;
+    QMediaPlayer *musicaNivel1;
+    QMediaPlayer *musicaNivel2;
 
-    QAudioOutput *audioOutput;
+    QAudioOutput *audioMenu;
+    QAudioOutput *audioNivel1;
+    QAudioOutput *audioNivel2;
+
+    bool enNivel;
+    int nivelActual;
+
+protected:
+
+    void keyPressEvent(
+        QKeyEvent* event
+        ) override;
+
 };
 
 #endif

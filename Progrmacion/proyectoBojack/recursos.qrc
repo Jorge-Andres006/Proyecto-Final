@@ -2,5 +2,8 @@
     <qresource prefix="/new/prefix1">
         <file>Imagenes/FondoMenu.png</file>
         <file>Imagenes/BoJackIntro.wav</file>
+        <file>Imagenes/fondoNivel1.png</file>
+        <file>Imagenes/fondoNivel2.png</file>
+        <file>Imagenes/fondoTransicion.png</file>
     </qresource>
 </RCC>
