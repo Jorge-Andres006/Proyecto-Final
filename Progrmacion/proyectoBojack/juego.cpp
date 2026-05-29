@@ -1,6 +1,9 @@
 #include "juego.h"
 
 #include <QPixmap>
+#include <QGraphicsTextItem>
+#include <QFont>
+#include <QRect>
 
 Juego::Juego(
     QGraphicsScene *scene,
@@ -19,6 +22,8 @@ Juego::Juego(
     progresoCarga = 0;
 
     nivelPendiente = 0;
+
+    cargando = false;
 }
 
 void Juego::mostrarMenu()
@@ -96,6 +101,22 @@ void Juego::iniciarNivel2()
 
 void Juego::mostrarPantallaCarga(int nivel)
 {
+    if(cargando){
+
+        return;
+    }
+
+    cargando = true;
+
+    if(timerCarga)
+    {
+        timerCarga->stop();
+
+        timerCarga->deleteLater();
+
+        timerCarga = nullptr;
+    }
+
     scene->clear();
 
     nivelPendiente = nivel;
@@ -114,6 +135,30 @@ void Juego::mostrarPantallaCarga(int nivel)
         );
 
     scene->addPixmap(imagen);
+
+    QGraphicsTextItem *textoCarga =
+        scene->addText("Cargando...");
+
+    QFont fuente(
+        "Segoe UI",
+        20,
+        QFont::Bold
+        );
+
+    textoCarga->setFont(fuente);
+
+    textoCarga->setDefaultTextColor(
+        QColor(0,0,0)
+        );
+
+    qreal anchoTexto =
+        textoCarga->boundingRect().width();
+
+    textoCarga->setPos(
+        1105 - anchoTexto/2,
+        625
+        );
+
 
     barraCargaFondo =
         scene->addRect(
@@ -162,6 +207,7 @@ void Juego::actualizarCarga()
 
     if(progresoCarga >= 100)
     {
+        cargando = false;
         timerCarga->stop();
         timerCarga->deleteLater();
 

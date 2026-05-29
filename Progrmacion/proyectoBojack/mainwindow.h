@@ -34,6 +34,7 @@ private slots:
     void volverMenu();
 
 
+
 private:
 
     Ui::MainWindow *ui;
@@ -51,6 +52,7 @@ private:
 
     bool enNivel;
     int nivelActual;
+    bool cargando;
 
 protected:
 

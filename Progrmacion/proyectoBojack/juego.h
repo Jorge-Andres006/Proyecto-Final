@@ -57,6 +57,8 @@ private:
     int nivelPendiente;
 
     QMediaPlayer *musicaMenu;
+
+    bool cargando;
 };
 
 #endif

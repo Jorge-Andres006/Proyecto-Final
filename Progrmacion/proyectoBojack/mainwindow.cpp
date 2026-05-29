@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     enNivel = false;
     nivelActual = 0;
+    cargando = false;
 
     setFixedSize(1280, 720);
 
@@ -96,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
             musicaMenu->play();
             nivelActual = 1;
             ui->Pausa->hide();
+            cargando = true;
             juego->mostrarPantallaCarga(1);
         }
         );
@@ -110,6 +112,7 @@ MainWindow::MainWindow(QWidget *parent)
             musicaMenu->play();
             nivelActual = 2;
             ui->Pausa->hide();
+            cargando = true;
             juego->mostrarPantallaCarga(2);
         }
         );
@@ -123,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent)
             musicaNivel2->stop();
             musicaMenu->play();
             ui->Pausa->hide();
+            cargando = true;
             juego->mostrarPantallaCarga(nivelActual);
         }
         );
@@ -132,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         [this](int nivel)
         {
+            cargando = false;
             musicaMenu->stop();
 
             if(nivel == 1)
@@ -162,6 +167,8 @@ void MainWindow::iniciarNivel1()
 
     ui->botonSalir->hide();
 
+    cargando = true;
+
     juego->mostrarPantallaCarga(1);
 }
 
@@ -176,11 +183,18 @@ void MainWindow::iniciarNivel2()
 
     ui->botonSalir->hide();
 
+    cargando = true;
+
     juego->mostrarPantallaCarga(2);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if(cargando)
+    {
+
+        return;
+    }
     if(event->key() == Qt::Key_Escape && enNivel)
     {
         if(ui->Pausa->isVisible())
