@@ -42,3 +42,7 @@ void Jugador::setNombre(const string &nombre) {
 
     this->nombre = nombre;
 }
+TipoEntidad Jugador::getTipo() const
+{
+    return JUGADOR;
+}

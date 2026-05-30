@@ -13,22 +13,20 @@ private:
 
     double ancho;
     double alto;
+    void actualizarEntidades(double dt);
 
+    void manejarColisiones();
+
+    void manejarLimites();
 public:
-
+    void eliminarEntidad(Entidad* entidad);
     Mundo(double ancho, double alto);
 
     void agregarEntidad(Entidad* entidad);
 
     void actualizar(double dt);
 
-private:
 
-    void actualizarEntidades(double dt);
-
-    void manejarColisiones();
-
-    void manejarLimites();
 };
 
 #endif

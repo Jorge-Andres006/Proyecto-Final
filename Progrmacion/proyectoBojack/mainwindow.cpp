@@ -190,6 +190,10 @@ void MainWindow::iniciarNivel2()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if(event->isAutoRepeat())
+    {
+        return;
+    }
     if(cargando)
     {
 
@@ -206,10 +210,30 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui->Pausa->show();
         }
     }
-
+    if(enNivel)
+    {
+        juego->teclaPresionada(
+            event->key()
+            );
+    }
     QMainWindow::keyPressEvent(event);
 }
+void MainWindow::keyReleaseEvent(
+    QKeyEvent *event
+    )
+{
+    if(event->isAutoRepeat())
+    {
+        return;
+    }
+    juego->teclaLiberada(
+        event->key()
+        );
 
+    QMainWindow::keyReleaseEvent(
+        event
+        );
+}
 void MainWindow::volverMenu()
 {
     musicaNivel1->stop();

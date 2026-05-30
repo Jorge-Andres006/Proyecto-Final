@@ -2,7 +2,12 @@
 #define ENTIDAD_H
 
 #include "vector2d.h"
-
+enum TipoEntidad
+{
+    JUGADOR,
+    DISCO,
+    OBSTACULO
+};
 class Entidad {
 protected:
     Vector2D posicion;
@@ -21,7 +26,7 @@ public:
 
     // Método abstracto
     virtual void actualizar(double dt) = 0;
-
+    virtual TipoEntidad getTipo() const = 0;
     // Movimiento genérico
     void mover(double dt);
 

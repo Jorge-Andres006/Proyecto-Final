@@ -13,7 +13,7 @@ Juego::Juego(
     this->scene = scene;
 
     fondo = nullptr;
-
+    nivel1 = nullptr;
     barraCarga = nullptr;
     barraCargaFondo = nullptr;
 
@@ -24,10 +24,30 @@ Juego::Juego(
     nivelPendiente = 0;
 
     cargando = false;
+    timerJuego = new QTimer(this);
+
+    connect(
+        timerJuego,
+        &QTimer::timeout,
+        this,
+        &::Juego::actualizarJuego
+        );
+    teclaW = false;
+    teclaA = false;
+    teclaS = false;
+    teclaD = false;
 }
 
 void Juego::mostrarMenu()
 {
+    timerJuego->stop();
+
+
+    if(nivel1)
+    {
+        delete nivel1;
+        nivel1 = nullptr;
+    }
     scene->clear();
 
     QPixmap fondoOriginal(
@@ -66,6 +86,7 @@ void Juego::iniciarNivel1()
             Qt::IgnoreAspectRatio,
             Qt::SmoothTransformation
             );
+
     fondo = scene->addPixmap(fondoNivel1);
 
     fondo->setZValue(-100);
@@ -73,11 +94,39 @@ void Juego::iniciarNivel1()
     scene->setSceneRect(
         fondoNivel1.rect()
         );
+
+    if(nivel1)
+    {
+        delete nivel1;
+        nivel1 = nullptr;
+    }
+
+    nivel1 = new NivelEntrenamiento(
+        1280,
+        720,
+        scene
+        );
+
+    nivel1->iniciar();
+
+    timerJuego->start(16);
 }
 
 void Juego::iniciarNivel2()
 {
+
+    timerJuego->stop();
+
+    if(nivel1)
+    {
+
+        delete nivel1;
+
+        nivel1 = nullptr;
+    }
+
     scene->clear();
+
 
     QPixmap fondoOriginal(
         ":/new/prefix1/Imagenes/fondoNivel2.png"
@@ -101,6 +150,7 @@ void Juego::iniciarNivel2()
 
 void Juego::mostrarPantallaCarga(int nivel)
 {
+    timerJuego->stop();
     if(cargando){
 
         return;
@@ -224,4 +274,129 @@ void Juego::actualizarCarga()
             iniciarNivel2();
         }
     }
+}
+void Juego::teclaPresionada(int tecla)
+{
+    if(!nivel1)
+    {
+        return;
+    }
+
+    switch(tecla)
+    {
+    case Qt::Key_W:
+
+        teclaW = true;
+
+        break;
+
+    case Qt::Key_S:
+
+        teclaS = true;
+
+        break;
+
+    case Qt::Key_A:
+
+        teclaA = true;
+
+        break;
+
+    case Qt::Key_D:
+
+        teclaD = true;
+
+        break;
+
+    case Qt::Key_R:
+
+        nivel1->iniciarCarga();
+
+        break;
+    }
+}
+void Juego::teclaLiberada(int tecla)
+{
+    if(!nivel1)
+    {
+        return;
+    }
+
+    switch(tecla)
+    {
+    case Qt::Key_W:
+
+        teclaW = false;
+
+        break;
+
+    case Qt::Key_S:
+
+        teclaS = false;
+
+        break;
+
+    case Qt::Key_A:
+
+        teclaA = false;
+
+        break;
+
+    case Qt::Key_D:
+
+        teclaD = false;
+
+        break;
+
+    case Qt::Key_R:
+
+        nivel1->detenerCarga();
+
+        break;
+    }
+}
+void Juego::actualizarJuego()
+{
+    if(!nivel1)
+    {
+        return;
+    }
+
+    Vector2D direccion(0,0);
+
+    if(teclaW)
+    {
+        direccion += Vector2D(0,-3);
+    }
+
+    if(teclaS)
+    {
+         direccion += Vector2D(0,3);
+    }
+
+    if(teclaA)
+    {
+        direccion += Vector2D(-3,0);
+    }
+
+    if(teclaD)
+    {
+        direccion += Vector2D(3,0);
+    }
+
+    if(
+        direccion.getX() != 0 ||
+        direccion.getY() != 0
+        )
+    {
+        nivel1->moverJugador(
+            direccion
+            );
+    }
+
+    nivel1->actualizar(0.016);
+}
+NivelEntrenamiento* Juego::getNivel1()
+{
+    return nivel1;
 }

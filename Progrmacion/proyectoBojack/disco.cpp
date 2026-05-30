@@ -16,9 +16,7 @@ Disco::Disco() : Entidad() {
 Disco::~Disco(){
 
 }
-Disco::Disco(const Vector2D &posicion, const Vector2D &velocidad, double radio,
-             double masa, double friccion, double rebote,
-             double velocidadMaxima)
+Disco::Disco(const Vector2D &posicion, const Vector2D &velocidad, double radio,double masa, double friccion, double rebote,double velocidadMaxima)
     : Entidad(posicion, velocidad, radio) {
 
     this->masa = masa;
@@ -53,6 +51,9 @@ void Disco::rebotarY() { velocidad.setY(-velocidad.getY() * rebote); }
 void Disco::limitarVelocidad() { velocidad.limitar(velocidadMaxima); }
 
 double Disco::getMasa() const { return masa; }
+TipoEntidad Disco::getTipo() const{
+    return DISCO;
+}
 
 double Disco::getFriccion() const { return friccion; }
 

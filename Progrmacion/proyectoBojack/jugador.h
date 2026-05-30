@@ -26,6 +26,7 @@ public:
     std::string getNombre() const;
 
     int getPuntuacion() const;
+    TipoEntidad getTipo() const override;
 
     void setNombre(const std::string &nombre);
 };

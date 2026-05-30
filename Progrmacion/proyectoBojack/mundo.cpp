@@ -1,22 +1,20 @@
-
 #include "mundo.h"
 
-    using namespace std;
+using namespace std;
 
-Mundo::Mundo(double ancho, double alto) {
-
+Mundo::Mundo(double ancho, double alto)
+{
     this->ancho = ancho;
-
     this->alto = alto;
 }
 
-void Mundo::agregarEntidad(Entidad *entidad) {
-
+void Mundo::agregarEntidad(Entidad *entidad)
+{
     entidades.push_back(entidad);
 }
 
-void Mundo::actualizar(double dt) {
-
+void Mundo::actualizar(double dt)
+{
     actualizarEntidades(dt);
 
     manejarColisiones();
@@ -24,25 +22,31 @@ void Mundo::actualizar(double dt) {
     manejarLimites();
 }
 
-void Mundo::actualizarEntidades(double dt) {
-
-    for (Entidad *entidad : entidades) {
-
+void Mundo::actualizarEntidades(double dt)
+{
+    for (Entidad *entidad : entidades)
+    {
         entidad->actualizar(dt);
     }
 }
 
-void Mundo::manejarColisiones() {
-
-    for (size_t i = 0; i < entidades.size(); i++) {
-
-        for (size_t j = i + 1; j < entidades.size(); j++) {
-
+void Mundo::manejarColisiones()
+{
+    for (size_t i = 0; i < entidades.size(); i++)
+    {
+        for (size_t j = i + 1; j < entidades.size(); j++)
+        {
             Entidad *a = entidades[i];
 
             Entidad *b = entidades[j];
 
-            if (a->colisionaCon(*b)) {
+            if (a->colisionaCon(*b))
+            {
+                if (a->getTipo() == OBSTACULO ||
+                    b->getTipo() == OBSTACULO)
+                {
+                    continue;
+                }
 
                 Vector2D velocidadA = a->getVelocidad();
 
@@ -56,9 +60,14 @@ void Mundo::manejarColisiones() {
     }
 }
 
-void Mundo::manejarLimites() {
-
-    for (Entidad *entidad : entidades) {
+void Mundo::manejarLimites()
+{
+    for (Entidad *entidad : entidades)
+    {
+        if(entidad->getTipo() == OBSTACULO)
+        {
+            continue;
+        }
 
         Vector2D posicion = entidad->getPosicion();
 
@@ -66,33 +75,30 @@ void Mundo::manejarLimites() {
 
         double radio = entidad->getRadio();
 
-        // LIMITE IZQUIERDO
-        if (posicion.getX() - radio < 0) {
-
+        if (posicion.getX() - radio < 0)
+        {
             posicion.setX(radio);
 
             velocidad.setX(-velocidad.getX());
         }
 
-        // LIMITE DERECHO
-        if (posicion.getX() + radio > ancho) {
-
+        if (posicion.getX() + radio > ancho)
+        {
             posicion.setX(ancho - radio);
 
             velocidad.setX(-velocidad.getX());
         }
 
-        // LIMITE SUPERIOR
-        if (posicion.getY() - radio < 0) {
 
+        if (posicion.getY() - radio < 0)
+        {
             posicion.setY(radio);
 
             velocidad.setY(-velocidad.getY());
         }
 
-        // LIMITE INFERIOR
-        if (posicion.getY() + radio > alto) {
-
+        if (posicion.getY() + radio > alto)
+        {
             posicion.setY(alto - radio);
 
             velocidad.setY(-velocidad.getY());
@@ -104,5 +110,18 @@ void Mundo::manejarLimites() {
     }
 }
 
+void Mundo::eliminarEntidad(Entidad *entidad)
+{
+    for(size_t i = 0; i < entidades.size(); i++)
+    {
+        if(entidades[i] == entidad)
+        {
+            entidades.erase(
+                entidades.begin() + i
+                );
 
+            return;
+        }
+    }
+}
 

@@ -16,7 +16,7 @@ public:
     Obstaculo(const Vector2D &posicion,double radio);
 
     void actualizar(double dt) override;
-
+    TipoEntidad getTipo() const override;
     bool estaActivo() const;
 
     void desactivar();

@@ -8,6 +8,7 @@
 #include <QGraphicsRectItem>
 #include <QTimer>
 #include <QMediaPlayer>
+#include "nivelEntrenamiento.h"
 
 class Juego : public QObject
 {
@@ -27,19 +28,23 @@ public:
     void iniciarNivel2();
 
     void mostrarPantallaCarga(int nivel);
-
+    NivelEntrenamiento* getNivel1();
+    void teclaPresionada(int tecla);
+    void teclaLiberada(int tecla);
 signals:
 
     void nivelCargado(int nivel);
 
 private slots:
-
+    void actualizarJuego();
     void actualizarCarga();
 
-
 private:
+    NivelEntrenamiento *nivel1;
 
     QGraphicsScene *scene;
+
+    QTimer *timerJuego;
 
     QGraphicsPixmapItem *fondo;
 
@@ -59,6 +64,11 @@ private:
     QMediaPlayer *musicaMenu;
 
     bool cargando;
+    bool teclaW;
+    bool teclaA;
+    bool teclaS;
+    bool teclaD;
+
 };
 
 #endif
