@@ -162,10 +162,10 @@ MainWindow::MainWindow(QWidget *parent)
         [this](int goles)
         {
             ui->labelGoles->setText(
-                QString("%1/5").arg(goles)
+                QString("%1/7").arg(goles)
                 );
 
-            if(goles >= 5)
+            if(goles >= 7)
             {
                 ui->labelGoles->setStyleSheet(
                     "QLabel{"

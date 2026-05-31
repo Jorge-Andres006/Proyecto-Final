@@ -7,5 +7,7 @@
         <file>Imagenes/fondoTransicion.png</file>
         <file>Imagenes/BarraDePotencia.png</file>
         <file>Imagenes/MarcoGoles.png</file>
+        <file>Imagenes/Sprites.png</file>
+        <file>Imagenes/spritesDiscoSinFondo.png</file>
     </qresource>
 </RCC>

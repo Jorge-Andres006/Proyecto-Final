@@ -50,17 +50,24 @@ private:
     void generarObstaculo();
     QGraphicsScene *scene;
 
-    QGraphicsEllipseItem *itemJugador;
 
-    QGraphicsEllipseItem *itemDisco;
+    QGraphicsPixmapItem *itemJugador;
+    QPixmap spriteSheet;
+    //QGraphicsEllipseItem *itemDisco;
+    QGraphicsPixmapItem* itemDisco;
+    QPixmap spriteSheetDisco;
 
     QGraphicsRectItem *itemArco;
     QGraphicsPixmapItem* hudPotencia;
 
     QGraphicsRectItem* barraPotencia;
     QGraphicsPixmapItem* hudGolesItem;
+    int frameActual;
 
+    double tiempoAnimacion;
+    QPixmap discoVertical;
 
+    QPixmap discoHorizontal;
 public:
     void moverJugador(
         const Vector2D& direccion

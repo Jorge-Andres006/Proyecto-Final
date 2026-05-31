@@ -24,8 +24,8 @@ NivelEntrenamiento::NivelEntrenamiento(
 
     disco(
         Vector2D(
-            ancho / 2.0,
-            alto / 2.0
+            630,
+            308
             ),
         Vector2D(0.0, 0.0),
         10.0,
@@ -44,6 +44,13 @@ NivelEntrenamiento::NivelEntrenamiento(
         120.0
         )
 {
+    spriteSheet = QPixmap(
+        ":/new/prefix1/Imagenes/Sprites.png"
+        );
+    spriteSheetDisco = QPixmap(
+        ":/new/prefix1/Imagenes/spritesDiscoSinFondo.png"
+        );
+    qDebug() << spriteSheetDisco.isNull();
     this->scene = scene;
 
     itemJugador = nullptr;
@@ -61,6 +68,9 @@ NivelEntrenamiento::NivelEntrenamiento(
 
     potencia = 0.0;
     tiempoRecogerDisco = 0.0;
+    frameActual = 0;
+
+    tiempoAnimacion = 0.0;
 
 
     cargandoDisparo = false;
@@ -121,32 +131,52 @@ void NivelEntrenamiento::iniciar()
             )
         );
 
-    itemJugador =scene->addEllipse(
-            jugador.getPosicion().getX() - 20,
-            jugador.getPosicion().getY() - 20,
-            40,
-            40,
-            QPen(Qt::black),
-            QBrush(Qt::blue)
+    QPixmap spriteJugador =
+        spriteSheet.copy(
+            0,      // x
+            0,      // y
+            135,    // ancho
+            147     // alto
+            );
+    itemJugador =
+        scene->addPixmap(
+            spriteJugador
+            );
+    itemJugador->setScale(0.6);
+    itemJugador->setPos(
+        jugador.getPosicion().getX() - 25,
+        jugador.getPosicion().getY() - 25
+        );
+    discoVertical =
+        spriteSheetDisco.copy(
+            120,
+            0,
+            110,
+            110
             );
 
-    itemDisco =scene->addEllipse(
-            disco.getPosicion().getX() - 10,
-            disco.getPosicion().getY() - 10,
-            20,
-            20,
-            QPen(Qt::black),
-            QBrush(Qt::red)
+    discoHorizontal =
+        spriteSheetDisco.copy(
+            120,
+            117,
+            110,
+            110
             );
 
-    itemArco =scene->addRect(
-            arco.getPosicion().getX(),
-            arco.getPosicion().getY(),
-            arco.getAncho(),
-            arco.getAlto(),
-            QPen(Qt::green, 3),
-            QBrush(Qt::NoBrush)
+    itemDisco =
+        scene->addPixmap(
+            discoVertical
             );
+    itemDisco->setScale(0.4);
+
+    itemArco = scene->addRect(
+        arco.getPosicion().getX(),
+        arco.getPosicion().getY(),
+        arco.getAncho(),
+        arco.getAlto(),
+        Qt::NoPen,
+        Qt::NoBrush
+        );
 
     QPixmap marcoGoles(":/new/prefix1/Imagenes/MarcoGoles.png");
 
@@ -178,6 +208,7 @@ void NivelEntrenamiento::iniciar()
 
 void NivelEntrenamiento::actualizar(double dt)
 {
+    tiempoAnimacion += dt;
     tiempo += dt;
     if(tiempoRecogerDisco > 0.0)
     {
@@ -255,8 +286,8 @@ void NivelEntrenamiento::actualizar(double dt)
     {
         disco.setPosicion(
             Vector2D(
-                640,
-                360
+                630,
+                308
                 )
             );
 
@@ -277,25 +308,33 @@ void NivelEntrenamiento::actualizar(double dt)
     }
     for(Obstaculo* obstaculo : obstaculos)
     {
-        if(jugador.colisionaCon(*obstaculo))
+        Vector2D puntoColision =
+            jugador.getPosicion() +
+            Vector2D(0, 30);
+
+        if(
+            puntoColision.distancia(
+                obstaculo->getPosicion()
+                ) < 30.0
+            )
         {
             if(tieneDisco && !invulnerable)
             {
                 tieneDisco = false;
+
                 potencia = 0.0;
+
                 cargandoDisparo = false;
+
                 disco.setPosicion(
                     Vector2D(
-                        640,
-                        360
+                        630,
+                        308
                         )
                     );
 
                 disco.setVelocidad(
-                    Vector2D(
-                        0,
-                        0
-                        )
+                    Vector2D(0,0)
                     );
 
                 invulnerable = true;
@@ -318,10 +357,14 @@ void NivelEntrenamiento::actualizar(double dt)
     }
     if(!tieneDisco && tiempoRecogerDisco <= 0.0)
     {
+        Vector2D puntoRecogida =
+            jugador.getPosicion() +
+            Vector2D(0, 30);
+
         if(
-            jugador.getPosicion().distancia(
+            puntoRecogida.distancia(
                 disco.getPosicion()
-                ) < 20.0
+                ) < 35.0
             )
         {
             tieneDisco = true;
@@ -330,9 +373,26 @@ void NivelEntrenamiento::actualizar(double dt)
 
     if(tieneDisco)
     {
+        Vector2D offset =
+            direccionJugador * 35.0 +
+            Vector2D(0,30);
+        if(
+            abs(direccionJugador.getX()) >
+            abs(direccionJugador.getY())
+            )
+        {
+            itemDisco->setPixmap(
+                discoHorizontal
+                );
+        }
+        else
+        {
+            itemDisco->setPixmap(
+                discoVertical
+                );
+        }
         disco.setPosicion(
-            jugador.getPosicion() +
-            direccionJugador * 35.0
+            jugador.getPosicion() + offset
             );
 
         disco.setVelocidad(
@@ -342,21 +402,17 @@ void NivelEntrenamiento::actualizar(double dt)
 
     if(itemJugador)
     {
-        itemJugador->setRect(
-            jugador.getPosicion().getX() - 20,
-            jugador.getPosicion().getY() - 20,
-            40,
-            40
+        itemJugador->setPos(
+            jugador.getPosicion().getX() - 25,
+            jugador.getPosicion().getY() - 25
             );
     }
 
     if(itemDisco)
     {
-        itemDisco->setRect(
-            disco.getPosicion().getX() - 10,
-            disco.getPosicion().getY() - 10,
-            20,
-            20
+        itemDisco->setPos(
+            disco.getPosicion().getX() - 18,
+            disco.getPosicion().getY() - 18
             );
     }
     for(size_t i = 0;i < obstaculos.size();i++)
@@ -419,8 +475,8 @@ void NivelEntrenamiento::verificarGol()
 
         disco.setPosicion(
             Vector2D(
-                640,
-                360
+                630,
+                308
                 )
             );
 
@@ -432,7 +488,7 @@ void NivelEntrenamiento::verificarGol()
             );
 
         tiempoRecogerDisco = 0.5;
-        if(goles >= 5)
+        if(goles >= 7)
         {
             qDebug() << "Nivel completado";
             finalizar();
@@ -541,7 +597,62 @@ void NivelEntrenamiento::moverJugador(
 {
     if(direccion.getX() != 0 || direccion.getY() != 0)
     {
-        direccionJugador =direccion.normalizar();
+        direccionJugador = direccion.normalizar();
+        if(tiempoAnimacion > 0.15)
+        {
+            frameActual++;
+
+            if(frameActual >= 8)
+            {
+                frameActual = 0;
+            }
+
+            tiempoAnimacion = 0.0;
+        }
+        if(direccion.getY() > 0)
+        {
+            itemJugador->setPixmap(
+                spriteSheet.copy(
+                    frameActual * 135,
+                    0,
+                    125,
+                    135
+                    )
+                );
+        }
+        else if(direccion.getY() < 0)
+        {
+            itemJugador->setPixmap(
+                spriteSheet.copy(
+                    frameActual * 135,
+                    147,
+                    125,
+                    135
+                    )
+                );
+        }
+        else if(direccion.getX() > 0)
+        {
+            itemJugador->setPixmap(
+                spriteSheet.copy(
+                    frameActual * 135,
+                    294,
+                    125,
+                    135
+                    )
+                );
+        }
+        else if(direccion.getX() < 0)
+        {
+            itemJugador->setPixmap(
+                spriteSheet.copy(
+                    frameActual * 135,
+                    441,
+                    125,
+                    135
+                    )
+                );
+        }
     }
     double velocidadJugador = 1.2;
 
