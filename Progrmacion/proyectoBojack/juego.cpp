@@ -395,6 +395,9 @@ void Juego::actualizarJuego()
     }
 
     nivel1->actualizar(0.016);
+    emit golesActualizados(
+        nivel1->getGoles()
+        );
 }
 NivelEntrenamiento* Juego::getNivel1()
 {

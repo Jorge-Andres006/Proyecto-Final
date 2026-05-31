@@ -9,6 +9,7 @@
 #include "arco.h"
 #include "obstaculo.h"
 #include <QGraphicsLineItem>
+#include <QGraphicsTextItem>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
@@ -27,7 +28,6 @@ private:
     std::vector<QGraphicsEllipseItem*> itemsObstaculos;
 
     int goles;
-
     double tiempoSpawnObstaculos;
     double tiempoRecogerDisco;
 
@@ -55,6 +55,10 @@ private:
     QGraphicsEllipseItem *itemDisco;
 
     QGraphicsRectItem *itemArco;
+    QGraphicsPixmapItem* hudPotencia;
+
+    QGraphicsRectItem* barraPotencia;
+    QGraphicsPixmapItem* hudGolesItem;
 
 
 public:
@@ -80,6 +84,7 @@ public:
 
 
     double getPotencia() const;
+    int getGoles() const;
 
 };
 

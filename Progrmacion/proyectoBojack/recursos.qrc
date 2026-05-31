@@ -5,5 +5,7 @@
         <file>Imagenes/fondoNivel1.png</file>
         <file>Imagenes/fondoNivel2.png</file>
         <file>Imagenes/fondoTransicion.png</file>
+        <file>Imagenes/BarraDePotencia.png</file>
+        <file>Imagenes/MarcoGoles.png</file>
     </qresource>
 </RCC>

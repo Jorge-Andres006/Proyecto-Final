@@ -17,7 +17,7 @@ public:
     static constexpr double FRICCION_BASE = 0.995;
     static constexpr double REBOTE_BASE = 0.8;
     static constexpr double MASA_BASE = 1.0;
-    static constexpr double VELOCIDAD_MAXIMA_BASE = 1000.0;
+    static constexpr double VELOCIDAD_MAXIMA_BASE = 5000.0;
 
     Disco();
     ~Disco();

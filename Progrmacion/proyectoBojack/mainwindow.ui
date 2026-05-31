@@ -480,6 +480,37 @@ QPushButton:pressed{
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="labelGoles">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>55</y>
+      <width>143</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>18</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel{
+    color: white;
+    background-color: rgb(95,168,211);
+    border-radius: 8px;
+    font-weight: bold;
+}</string>
+    </property>
+    <property name="text">
+     <string>0/5</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignCenter</set>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

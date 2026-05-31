@@ -32,16 +32,16 @@ NivelEntrenamiento::NivelEntrenamiento(
         1.0,
         0.995,
         0.8,
-        500.0
+        1000.0
         ),
 
     arco(
         Vector2D(
-            ancho - 120.0,
-            alto / 2.0 - 100.0
+            ancho - 90,
+            alto / 2.0 - 109
             ),
-        80.0,
-        200.0
+        10,
+        120.0
         )
 {
     this->scene = scene;
@@ -52,6 +52,9 @@ NivelEntrenamiento::NivelEntrenamiento(
 
     itemArco = nullptr;
 
+    hudPotencia = nullptr;
+
+    barraPotencia = nullptr;
     goles = 0;
 
     tiempoSpawnObstaculos = 0.0;
@@ -144,6 +147,33 @@ void NivelEntrenamiento::iniciar()
             QPen(Qt::green, 3),
             QBrush(Qt::NoBrush)
             );
+
+    QPixmap marcoGoles(":/new/prefix1/Imagenes/MarcoGoles.png");
+
+    hudGolesItem =scene->addPixmap(marcoGoles);
+
+    hudGolesItem->setPos(
+        500,
+        10
+        );
+
+    hudGolesItem->setScale(0.15);
+    QPixmap hud(":/new/prefix1/Imagenes/BarraDePotencia.png");
+
+    hudPotencia = scene->addPixmap(hud);
+
+    hudPotencia->setPos(950, 540);
+    hudPotencia->setScale(0.2);
+    hudPotencia->setZValue(100);
+
+    barraPotencia =scene->addRect(
+            1000,
+            617,
+            0,
+            61,
+            QPen(Qt::black),
+            QBrush(Qt::green)
+            );
 }
 
 void NivelEntrenamiento::actualizar(double dt)
@@ -165,27 +195,86 @@ void NivelEntrenamiento::actualizar(double dt)
         }
     }
     tiempoSpawnObstaculos += dt;
-    if(tiempoSpawnObstaculos >= 2.0)
+    if(tiempoSpawnObstaculos >= 1)
     {
         generarObstaculo();
 
         tiempoSpawnObstaculos = 0.0;
     }
 
-    if(cargandoDisparo)
+    if(cargandoDisparo && tieneDisco)
     {
-        if(potencia < 300.0)
+        if(potencia < 1000.0)
         {
-            potencia += 200.0 * dt;
+            potencia += 70 * dt;
 
-            if(potencia > 300.0)
+            if(potencia > 1000.0)
             {
-                potencia = 300.0;
+                potencia = 1000.0;
             }
         }
     }
+    if(barraPotencia)
+    {
+        double porcentaje = potencia / 200.0;
 
+        double anchoBarra = potencia;
+        if(anchoBarra > 200)
+        {
+            anchoBarra = 200;
+        }
+        barraPotencia->setRect(
+            1000,
+            617,
+            anchoBarra,
+            61
+            );
+
+        if(porcentaje < 0.33)
+        {
+            barraPotencia->setBrush(Qt::green);
+        }
+        else if(porcentaje < 0.66)
+        {
+            barraPotencia->setBrush(Qt::yellow);
+        }
+        else
+        {
+            barraPotencia->setBrush(Qt::red);
+        }
+    }
     mundo.actualizar(dt);
+    Vector2D posDisco = disco.getPosicion();
+
+    double limiteDetrasArco =
+        arco.getPosicion().getX() +
+        arco.getAncho() +
+        30;
+
+    if(posDisco.getX() > limiteDetrasArco)
+    {
+        disco.setPosicion(
+            Vector2D(
+                640,
+                360
+                )
+            );
+
+        disco.setVelocidad(
+            Vector2D(
+                0,
+                0
+                )
+            );
+
+        tieneDisco = false;
+
+        potencia = 0.0;
+
+        cargandoDisparo = false;
+
+        tiempoRecogerDisco = 0.5;
+    }
     for(Obstaculo* obstaculo : obstaculos)
     {
         if(jugador.colisionaCon(*obstaculo))
@@ -193,7 +282,8 @@ void NivelEntrenamiento::actualizar(double dt)
             if(tieneDisco && !invulnerable)
             {
                 tieneDisco = false;
-
+                potencia = 0.0;
+                cargandoDisparo = false;
                 disco.setPosicion(
                     Vector2D(
                         640,
@@ -307,6 +397,7 @@ void NivelEntrenamiento::actualizar(double dt)
             i++;
         }
     }
+
     verificarGol();
 }
 
@@ -320,20 +411,33 @@ void NivelEntrenamiento::verificarGol()
     if(arco.detectarGol(disco))
     {
         goles++;
+        tieneDisco = false;
+
+        potencia = 0.0;
+
+        cargandoDisparo = false;
 
         disco.setPosicion(
             Vector2D(
-                50.0,
-                50.0
+                640,
+                360
                 )
             );
 
         disco.setVelocidad(
             Vector2D(
-                0.0,
-                0.0
+                0,
+                0
                 )
             );
+
+        tiempoRecogerDisco = 0.5;
+        if(goles >= 5)
+        {
+            qDebug() << "Nivel completado";
+            finalizar();
+        }
+
     }
 }
 
@@ -392,7 +496,13 @@ Disco& NivelEntrenamiento::getDisco()
 
 void NivelEntrenamiento::iniciarCarga()
 {
+    if(!tieneDisco)
+    {
+        return;
+    }
+
     cargandoDisparo = true;
+    potencia = 0.0;
 }
 
 void NivelEntrenamiento::detenerCarga()
@@ -410,15 +520,13 @@ void NivelEntrenamiento::detenerCarga()
 
     Vector2D direccion = direccionJugador;
 
-    if(potencia < 10.0)
+    if(potencia < 20.0)
     {
-        potencia = 10.0;
+        potencia = 20.0;
     }
-
     disco.setVelocidad(
-        direccion * (potencia * 10)
+        direccion * (potencia * 5)
         );
-
     potencia = 0.0;
 }
 
@@ -435,10 +543,18 @@ void NivelEntrenamiento::moverJugador(
     {
         direccionJugador =direccion.normalizar();
     }
-    Vector2D nuevaPosicion =jugador.getPosicion() +direccion;
+    double velocidadJugador = 1.2;
 
-    double radio =
-        jugador.getRadio();
+    if(tieneDisco)
+    {
+        velocidadJugador =0.6;
+    }
+
+    Vector2D nuevaPosicion =
+        jugador.getPosicion() +
+        direccion * velocidadJugador;
+
+    double radio = jugador.getRadio();
 
     if(
         nuevaPosicion.getX()
@@ -487,4 +603,8 @@ void NivelEntrenamiento::moverJugador(
     jugador.setPosicion(
         nuevaPosicion
         );
+}
+int NivelEntrenamiento::getGoles() const
+{
+    return goles;
 }

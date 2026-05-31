@@ -34,6 +34,7 @@ public:
 signals:
 
     void nivelCargado(int nivel);
+    void golesActualizados(int goles);
 
 private slots:
     void actualizarJuego();

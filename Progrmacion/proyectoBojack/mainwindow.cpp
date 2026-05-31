@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->labelGoles->hide();
     ui->Pausa->hide();
     resize(1280, 720);
 
@@ -137,15 +138,43 @@ MainWindow::MainWindow(QWidget *parent)
         [this](int nivel)
         {
             cargando = false;
+
             musicaMenu->stop();
 
             if(nivel == 1)
             {
+                ui->labelGoles->show();
+
                 musicaNivel1->play();
             }
             else if(nivel == 2)
             {
+                ui->labelGoles->hide();
+
                 musicaNivel2->play();
+            }
+        }
+    );
+    connect(
+        juego,
+        &Juego::golesActualizados,
+        this,
+        [this](int goles)
+        {
+            ui->labelGoles->setText(
+                QString("%1/5").arg(goles)
+                );
+
+            if(goles >= 5)
+            {
+                ui->labelGoles->setStyleSheet(
+                    "QLabel{"
+                    "color:black;"
+                    "background-color:rgb(255,215,0);"
+                    "border-radius:8px;"
+                    "font-weight:bold;"
+                    "}"
+                    );
             }
         }
         );
@@ -160,6 +189,8 @@ void MainWindow::iniciarNivel1()
 {
     enNivel = true;
     nivelActual = 1;
+
+    ui->labelGoles->hide();
 
     ui->botonNivel1->hide();
 
@@ -177,6 +208,7 @@ void MainWindow::iniciarNivel2()
     enNivel = true;
     nivelActual = 2;
 
+    ui->labelGoles->hide();
     ui->botonNivel1->hide();
 
     ui->botonNivel2->hide();
@@ -243,7 +275,7 @@ void MainWindow::volverMenu()
     nivelActual = 0;
 
     juego->mostrarMenu();
-
+    ui->labelGoles->hide();
     ui->Pausa->hide();
 
     ui->botonNivel1->show();
