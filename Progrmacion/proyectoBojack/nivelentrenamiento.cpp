@@ -50,7 +50,9 @@ NivelEntrenamiento::NivelEntrenamiento(
     spriteSheetDisco = QPixmap(
         ":/new/prefix1/Imagenes/spritesDiscoSinFondo.png"
         );
-    qDebug() << spriteSheetDisco.isNull();
+    spriteSheetObstaculos = QPixmap(
+        ":/new/prefix1/Imagenes/Obstaculos.png"
+        );
     this->scene = scene;
 
     itemJugador = nullptr;
@@ -79,6 +81,42 @@ NivelEntrenamiento::NivelEntrenamiento(
 
     tiempoInvulnerabilidad = 0.0;
     direccionJugador = Vector2D(1,0);
+    audioTodd = new QAudioOutput();
+
+    sonidoTodd = new QMediaPlayer();
+
+    sonidoTodd->setAudioOutput(
+        audioTodd
+        );
+    sonidoTodd->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/ToddAudio.wav"
+            )
+        );
+    audioTodd->setVolume(
+        1.0
+        );
+    audioGol = new QAudioOutput();
+
+    sonidoGol = new QMediaPlayer();
+
+
+    sonidoGol->setAudioOutput(
+        audioGol
+        );
+    sonidoGol->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/CelebracionGol.wav"
+            )
+        );
+
+    audioGol->setVolume(
+        0.30
+        );
+
+
+
+
 }
 
 NivelEntrenamiento::~NivelEntrenamiento()
@@ -88,6 +126,12 @@ NivelEntrenamiento::~NivelEntrenamiento()
     {
         delete obstaculo;
     }
+    delete sonidoTodd;
+
+    delete audioTodd;
+    delete sonidoGol;
+
+    delete audioGol;
 }
 
 void NivelEntrenamiento::iniciar()
@@ -107,15 +151,24 @@ void NivelEntrenamiento::iniciar()
     obstaculos.push_back(
         obstaculo
         );
-    QGraphicsEllipseItem* itemObstaculo =
-        scene->addEllipse(
-            obstaculo->getPosicion().getX() - 20,
-            obstaculo->getPosicion().getY() - 20,
-            40,
-            40,
-            QPen(Qt::black),
-            QBrush(Qt::darkRed)
+    QPixmap spriteObstaculo =spriteSheetObstaculos.copy(
+            170,
+            294,
+            120,
+            147
             );
+
+    QGraphicsPixmapItem* itemObstaculo =
+        scene->addPixmap(
+            spriteObstaculo
+            );
+
+    itemObstaculo->setScale(0.3);
+
+    itemObstaculo->setPos(
+        obstaculo->getPosicion().getX() - 30,
+        obstaculo->getPosicion().getY() - 30
+        );
 
     itemsObstaculos.push_back(
         itemObstaculo
@@ -133,10 +186,10 @@ void NivelEntrenamiento::iniciar()
 
     QPixmap spriteJugador =
         spriteSheet.copy(
-            0,      // x
-            0,      // y
-            135,    // ancho
-            147     // alto
+            0,
+            0,
+            135,
+            147
             );
     itemJugador =
         scene->addPixmap(
@@ -226,7 +279,7 @@ void NivelEntrenamiento::actualizar(double dt)
         }
     }
     tiempoSpawnObstaculos += dt;
-    if(tiempoSpawnObstaculos >= 1)
+    if(tiempoSpawnObstaculos >= 0.7)
     {
         generarObstaculo();
 
@@ -312,14 +365,18 @@ void NivelEntrenamiento::actualizar(double dt)
             jugador.getPosicion() +
             Vector2D(0, 30);
 
-        if(
-            puntoColision.distancia(
-                obstaculo->getPosicion()
-                ) < 30.0
-            )
-        {
+        if(puntoColision.distancia(obstaculo->getPosicion()) < 30.0){
+            if(!invulnerable)
+            {
+                sonidoTodd->stop();
+
+                sonidoTodd->play();
+            }
             if(tieneDisco && !invulnerable)
             {
+                sonidoTodd->stop();
+
+                sonidoTodd->play();
                 tieneDisco = false;
 
                 potencia = 0.0;
@@ -417,11 +474,9 @@ void NivelEntrenamiento::actualizar(double dt)
     }
     for(size_t i = 0;i < obstaculos.size();i++)
     {
-        itemsObstaculos[i]->setRect(
-            obstaculos[i]->getPosicion().getX() - 20,
-            obstaculos[i]->getPosicion().getY() - 20,
-            40,
-            40
+        itemsObstaculos[i]->setPos(
+            obstaculos[i]->getPosicion().getX() - 30,
+            obstaculos[i]->getPosicion().getY() - 30
             );
     }
     for(size_t i = 0; i < obstaculos.size(); )
@@ -467,6 +522,14 @@ void NivelEntrenamiento::verificarGol()
     if(arco.detectarGol(disco))
     {
         goles++;
+
+        if(goles < 7)
+        {
+            sonidoGol->stop();
+
+            sonidoGol->play();
+        }
+
         tieneDisco = false;
 
         potencia = 0.0;
@@ -488,12 +551,13 @@ void NivelEntrenamiento::verificarGol()
             );
 
         tiempoRecogerDisco = 0.5;
+
         if(goles >= 7)
         {
             qDebug() << "Nivel completado";
+
             finalizar();
         }
-
     }
 }
 
@@ -524,15 +588,71 @@ void NivelEntrenamiento::generarObstaculo()
         obstaculo
         );
 
-    QGraphicsEllipseItem* itemObstaculo =
-        scene->addEllipse(
-            x - 20,
-            y - 20,
-            40,
-            40,
-            QPen(Qt::black),
-            QBrush(Qt::darkRed)
+    int spriteAleatorio =
+        rand() % 5;
+
+    QPixmap sprite;
+
+    switch(spriteAleatorio)
+    {
+    case 0:
+        sprite = spriteSheetObstaculos.copy(
+                370,
+                0,
+                160,
+                147
+                );
+        break;
+
+    case 1:
+        sprite =spriteSheetObstaculos.copy(
+                0,
+                290,
+                170,
+                147
+                );
+        break;
+
+    case 2:
+        sprite=spriteSheetObstaculos.copy(
+            170,
+            294,
+            120,
+            147
             );
+        break;
+
+    case 3:
+
+        sprite =spriteSheetObstaculos.copy(
+                350,
+                294,
+                170,
+                147
+                );
+        break;
+
+    default:
+        sprite =spriteSheetObstaculos.copy(
+                350,
+                441,
+                180,
+                147
+                );
+        break;
+    }
+
+    QGraphicsPixmapItem* itemObstaculo =
+        scene->addPixmap(
+            sprite
+            );
+
+    itemObstaculo->setScale(0.3);
+
+    itemObstaculo->setPos(
+        x - 30,
+        y - 30
+        );
 
     itemsObstaculos.push_back(
         itemObstaculo
@@ -667,53 +787,59 @@ void NivelEntrenamiento::moverJugador(
 
     double radio = jugador.getRadio();
 
-    if(
-        nuevaPosicion.getX()
-        <
-        LIMITE_IZQUIERDO + radio
-        )
+    if(nuevaPosicion.getX()<LIMITE_IZQUIERDO + radio)
     {
         nuevaPosicion.setX(
             LIMITE_IZQUIERDO + radio
             );
     }
 
-    if(
-        nuevaPosicion.getX()
-        >
-        LIMITE_DERECHO - radio
-        )
+    if(nuevaPosicion.getX()>LIMITE_DERECHO - radio)
     {
         nuevaPosicion.setX(
             LIMITE_DERECHO - radio
             );
     }
 
-    if(
-        nuevaPosicion.getY()
-        <
-        LIMITE_SUPERIOR + radio
-        )
+    if(nuevaPosicion.getY()<LIMITE_SUPERIOR + radio)
     {
         nuevaPosicion.setY(
             LIMITE_SUPERIOR + radio
             );
     }
 
-    if(
-        nuevaPosicion.getY()
-        >
-        LIMITE_INFERIOR - radio
-        )
+    if(nuevaPosicion.getY()>LIMITE_INFERIOR - radio)
     {
         nuevaPosicion.setY(
             LIMITE_INFERIOR - radio
             );
     }
 
-    jugador.setPosicion(
-        nuevaPosicion
-        );
+    bool hayColision = false;
+
+    for(Obstaculo* obstaculo : obstaculos)
+    {
+        Vector2D puntoColision =
+            nuevaPosicion +
+            Vector2D(0,30);
+
+        if(
+            puntoColision.distancia(
+                obstaculo->getPosicion()
+                ) < 35
+            )
+        {
+            hayColision = true;
+            break;
+        }
+    }
+
+    if(!hayColision)
+    {
+        jugador.setPosicion(
+            nuevaPosicion
+            );
+    }
 }
 int NivelEntrenamiento::getGoles() const
 {

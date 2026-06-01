@@ -31,10 +31,12 @@ public:
     NivelEntrenamiento* getNivel1();
     void teclaPresionada(int tecla);
     void teclaLiberada(int tecla);
+    void pausarJuego();
 signals:
 
     void nivelCargado(int nivel);
     void golesActualizados(int goles);
+    void nivelCompletado();
 
 private slots:
     void actualizarJuego();
@@ -62,13 +64,15 @@ private:
 
     int nivelPendiente;
 
-    QMediaPlayer *musicaMenu;
+
 
     bool cargando;
     bool teclaW;
     bool teclaA;
     bool teclaS;
     bool teclaD;
+
+    bool victoriaMostrada;
 
 };
 

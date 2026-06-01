@@ -9,5 +9,10 @@
         <file>Imagenes/MarcoGoles.png</file>
         <file>Imagenes/Sprites.png</file>
         <file>Imagenes/spritesDiscoSinFondo.png</file>
+        <file>Imagenes/Obstaculos.png</file>
+        <file>Imagenes/MusicaNivel1.wav</file>
+        <file>Imagenes/ToddAudio.wav</file>
+        <file>Imagenes/CelebracionGol.wav</file>
+        <file>Imagenes/Victoria.wav</file>
     </qresource>
 </RCC>

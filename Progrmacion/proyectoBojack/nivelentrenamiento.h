@@ -13,6 +13,8 @@
 #include <QGraphicsEllipseItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 class NivelEntrenamiento : public Nivel
 {
@@ -24,8 +26,9 @@ private:
 
     Arco arco;
 
+    QPixmap spriteSheetObstaculos;
     std::vector<Obstaculo*> obstaculos;
-    std::vector<QGraphicsEllipseItem*> itemsObstaculos;
+    std::vector<QGraphicsPixmapItem*> itemsObstaculos;
 
     int goles;
     double tiempoSpawnObstaculos;
@@ -53,7 +56,7 @@ private:
 
     QGraphicsPixmapItem *itemJugador;
     QPixmap spriteSheet;
-    //QGraphicsEllipseItem *itemDisco;
+
     QGraphicsPixmapItem* itemDisco;
     QPixmap spriteSheetDisco;
 
@@ -66,8 +69,13 @@ private:
 
     double tiempoAnimacion;
     QPixmap discoVertical;
-
     QPixmap discoHorizontal;
+    QMediaPlayer* sonidoTodd;
+
+    QAudioOutput* audioTodd;
+    QMediaPlayer* sonidoGol;
+
+    QAudioOutput* audioGol;
 public:
     void moverJugador(
         const Vector2D& direccion

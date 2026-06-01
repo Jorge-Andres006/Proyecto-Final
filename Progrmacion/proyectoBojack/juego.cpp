@@ -36,6 +36,7 @@ Juego::Juego(
     teclaA = false;
     teclaS = false;
     teclaD = false;
+    victoriaMostrada=false;
 }
 
 void Juego::mostrarMenu()
@@ -73,6 +74,7 @@ void Juego::mostrarMenu()
 
 void Juego::iniciarNivel1()
 {
+    victoriaMostrada = false;
     scene->clear();
 
     QPixmap fondoOriginal(
@@ -115,6 +117,7 @@ void Juego::iniciarNivel1()
 void Juego::iniciarNivel2()
 {
 
+    victoriaMostrada = false;
     timerJuego->stop();
 
     if(nivel1)
@@ -150,6 +153,7 @@ void Juego::iniciarNivel2()
 
 void Juego::mostrarPantallaCarga(int nivel)
 {
+
     timerJuego->stop();
     if(cargando){
 
@@ -398,8 +402,23 @@ void Juego::actualizarJuego()
     emit golesActualizados(
         nivel1->getGoles()
         );
+    if(
+        nivel1->estaTerminado()
+        &&
+        !victoriaMostrada
+        )
+    {
+        victoriaMostrada = true;
+
+        emit nivelCompletado();
+    }
+
 }
 NivelEntrenamiento* Juego::getNivel1()
 {
     return nivel1;
+}
+void Juego::pausarJuego()
+{
+    timerJuego->stop();
 }

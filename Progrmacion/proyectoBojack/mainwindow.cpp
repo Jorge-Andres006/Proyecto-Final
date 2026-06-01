@@ -30,22 +30,37 @@ MainWindow::MainWindow(QWidget *parent)
     audioMenu = new QAudioOutput(this);
     audioNivel1 = new QAudioOutput(this);
     audioNivel2 = new QAudioOutput(this);
+    audioVictoria = new QAudioOutput(this);
 
     musicaMenu = new QMediaPlayer(this);
     musicaNivel1 = new QMediaPlayer(this);
     musicaNivel2 = new QMediaPlayer(this);
+    sonidoVictoria = new QMediaPlayer(this);
+
     musicaMenu->setAudioOutput(audioMenu);
     musicaNivel1->setAudioOutput(audioNivel1);
     musicaNivel2->setAudioOutput(audioNivel2);
+    sonidoVictoria->setAudioOutput(audioVictoria);
+
     musicaMenu->setSource(
         QUrl("qrc:/new/prefix1/Imagenes/BoJackIntro.wav")
         );
+    musicaNivel1->setSource(
+        QUrl("qrc:/new/prefix1/Imagenes/MusicaNivel1.wav")
+        );
+    sonidoVictoria->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/Victoria.wav")
+        );
     audioMenu->setVolume(0.35);
 
-    audioNivel1->setVolume(0.35);
+    audioNivel1->setVolume(0.25);
 
     audioNivel2->setVolume(0.35);
+    audioVictoria->setVolume(1.0);
+
     musicaMenu->setLoops(QMediaPlayer::Infinite);
+    musicaNivel1->setLoops(QMediaPlayer::Infinite);
 
     juego = new Juego(scene);
     juego->mostrarMenu();
@@ -93,10 +108,31 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         [this]()
         {
+            ui->tituloPausa->setText(
+                "PAUSA"
+                );
+            ui->tituloPausa->setStyleSheet(
+                "QLabel{"
+                "color:white;"
+                "font-size:28px;"
+                "font-weight:bold;"
+                "background:transparent;"
+                "}"
+                );
+            ui->labelGoles->setStyleSheet(
+                "QLabel{"
+                "color:white;"
+                "background-color:rgb(95,168,211);"
+                "border-radius:8px;"
+                "font-weight:bold;"
+                "}"
+                );
+            ui->Continuar->show();
             musicaNivel1->stop();
             musicaNivel2->stop();
             musicaMenu->play();
             nivelActual = 1;
+            ui->labelGoles->hide();
             ui->Pausa->hide();
             cargando = true;
             juego->mostrarPantallaCarga(1);
@@ -108,10 +144,23 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         [this]()
         {
+            ui->tituloPausa->setText(
+                "PAUSA"
+                );
+            ui->tituloPausa->setStyleSheet(
+                "QLabel{"
+                "color:white;"
+                "font-size:28px;"
+                "font-weight:bold;"
+                "background:transparent;"
+                "}"
+                );
+            ui->Continuar->show();
             musicaNivel1->stop();
             musicaNivel2->stop();
             musicaMenu->play();
             nivelActual = 2;
+            ui->labelGoles->hide();
             ui->Pausa->hide();
             cargando = true;
             juego->mostrarPantallaCarga(2);
@@ -123,9 +172,30 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         [this]()
         {
+            ui->tituloPausa->setText(
+                "PAUSA"
+                );
+            ui->tituloPausa->setStyleSheet(
+                "QLabel{"
+                "color:white;"
+                "font-size:28px;"
+                "font-weight:bold;"
+                "background:transparent;"
+                "}"
+                );
+            ui->labelGoles->setStyleSheet(
+                "QLabel{"
+                "color:white;"
+                "background-color:rgb(95,168,211);"
+                "border-radius:8px;"
+                "font-weight:bold;"
+                "}"
+                );
+            ui->Continuar->show();
             musicaNivel1->stop();
             musicaNivel2->stop();
             musicaMenu->play();
+            ui->labelGoles->hide();
             ui->Pausa->hide();
             cargando = true;
             juego->mostrarPantallaCarga(nivelActual);
@@ -178,6 +248,12 @@ MainWindow::MainWindow(QWidget *parent)
             }
         }
         );
+    connect(
+        juego,
+        &Juego::nivelCompletado,
+        this,
+        &MainWindow::mostrarVictoria
+        );
 }
 
 MainWindow::~MainWindow()
@@ -187,6 +263,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::iniciarNivel1()
 {
+    ui->labelGoles->setStyleSheet(
+        "QLabel{"
+        "color:white;"
+        "background-color:rgb(95,168,211);"
+        "border-radius:8px;"
+        "font-weight:bold;"
+        "}"
+        );
+    ui->Continuar->show();
     enNivel = true;
     nivelActual = 1;
 
@@ -205,6 +290,8 @@ void MainWindow::iniciarNivel1()
 
 void MainWindow::iniciarNivel2()
 {
+
+    ui->Continuar->show();
     enNivel = true;
     nivelActual = 2;
 
@@ -236,10 +323,17 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         if(ui->Pausa->isVisible())
         {
             ui->Pausa->hide();
+
+            if(nivelActual == 1)
+            {
+                ui->labelGoles->show();
+            }
         }
         else
         {
             ui->Pausa->show();
+
+            ui->labelGoles->hide();
         }
     }
     if(enNivel)
@@ -268,6 +362,8 @@ void MainWindow::keyReleaseEvent(
 }
 void MainWindow::volverMenu()
 {
+
+    ui->labelGoles->hide();
     musicaNivel1->stop();
     musicaNivel2->stop();
     musicaMenu->play();
@@ -282,4 +378,27 @@ void MainWindow::volverMenu()
     ui->botonNivel2->show();
     ui->botonSalir->show();
 
+}
+void MainWindow::mostrarVictoria()
+{
+    juego->pausarJuego();
+
+    musicaNivel1->stop();
+    sonidoVictoria->stop();
+    ui->labelGoles->hide();
+    sonidoVictoria->play();
+    ui->tituloPausa->setText(
+        " NIVEL COMPLETADO "
+        );
+    ui->tituloPausa->setStyleSheet(
+        "QLabel{"
+        "color:rgb(255,215,0);"
+        "font-size:32px;"
+        "font-weight:bold;"
+        "background:transparent;"
+        "}"
+        );
+    ui->Pausa->show();
+
+    ui->Continuar->hide();
 }

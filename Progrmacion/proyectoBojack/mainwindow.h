@@ -32,6 +32,7 @@ private slots:
     void iniciarNivel2();
 
     void volverMenu();
+    void mostrarVictoria();
 
 
 
@@ -45,10 +46,12 @@ private:
     QMediaPlayer *musicaMenu;
     QMediaPlayer *musicaNivel1;
     QMediaPlayer *musicaNivel2;
+    QMediaPlayer* sonidoVictoria;
 
     QAudioOutput *audioMenu;
     QAudioOutput *audioNivel1;
     QAudioOutput *audioNivel2;
+    QAudioOutput* audioVictoria;
 
     bool enNivel;
     int nivelActual;
