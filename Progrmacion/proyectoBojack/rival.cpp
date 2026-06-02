@@ -105,3 +105,7 @@ bool Rival::getDebeAtacar() const {
 
     return debeAtacar;
 }
+TipoEntidad Rival::getTipo() const
+{
+    return RIVAL;
+}

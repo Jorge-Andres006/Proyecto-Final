@@ -18,6 +18,7 @@ SOURCES += \
     mainwindow.cpp \
     mundo.cpp \
     nivel.cpp \
+    nivelenfrentamiento.cpp \
     nivelentrenamiento.cpp \
     obstaculo.cpp \
     personaje.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     mainwindow.h \
     mundo.h \
     nivel.h \
+    nivelenfrentamiento.h \
     nivelentrenamiento.h \
     obstaculo.h \
     personaje.h \

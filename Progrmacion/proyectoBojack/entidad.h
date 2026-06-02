@@ -6,7 +6,8 @@ enum TipoEntidad
 {
     JUGADOR,
     DISCO,
-    OBSTACULO
+    OBSTACULO,
+    RIVAL
 };
 class Entidad {
 protected:

@@ -14,6 +14,7 @@ Juego::Juego(
 
     fondo = nullptr;
     nivel1 = nullptr;
+    nivel2 = nullptr;
     barraCarga = nullptr;
     barraCargaFondo = nullptr;
 
@@ -49,6 +50,11 @@ void Juego::mostrarMenu()
         delete nivel1;
         nivel1 = nullptr;
     }
+    if(nivel2)
+    {
+        delete nivel2;
+        nivel2 = nullptr;
+    }
     scene->clear();
 
     QPixmap fondoOriginal(
@@ -75,6 +81,21 @@ void Juego::mostrarMenu()
 void Juego::iniciarNivel1()
 {
     victoriaMostrada = false;
+
+    timerJuego->stop();
+
+    if(nivel2)
+    {
+        delete nivel2;
+        nivel2 = nullptr;
+    }
+
+    if(nivel1)
+    {
+        delete nivel1;
+        nivel1 = nullptr;
+    }
+
     scene->clear();
 
     QPixmap fondoOriginal(
@@ -89,19 +110,15 @@ void Juego::iniciarNivel1()
             Qt::SmoothTransformation
             );
 
-    fondo = scene->addPixmap(fondoNivel1);
+    fondo = scene->addPixmap(
+        fondoNivel1
+        );
 
     fondo->setZValue(-100);
 
     scene->setSceneRect(
         fondoNivel1.rect()
         );
-
-    if(nivel1)
-    {
-        delete nivel1;
-        nivel1 = nullptr;
-    }
 
     nivel1 = new NivelEntrenamiento(
         1280,
@@ -116,20 +133,24 @@ void Juego::iniciarNivel1()
 
 void Juego::iniciarNivel2()
 {
-
     victoriaMostrada = false;
+
     timerJuego->stop();
 
     if(nivel1)
     {
-
         delete nivel1;
 
         nivel1 = nullptr;
     }
 
-    scene->clear();
+    if(nivel2)
+    {
+        delete nivel2;
+        nivel2 = nullptr;
+    }
 
+    scene->clear();
 
     QPixmap fondoOriginal(
         ":/new/prefix1/Imagenes/fondoNivel2.png"
@@ -142,13 +163,26 @@ void Juego::iniciarNivel2()
             Qt::IgnoreAspectRatio,
             Qt::SmoothTransformation
             );
-    fondo = scene->addPixmap(fondoNivel2);
+
+    fondo = scene->addPixmap(
+        fondoNivel2
+        );
 
     fondo->setZValue(-100);
 
     scene->setSceneRect(
         fondoNivel2.rect()
         );
+
+    nivel2 = new NivelEnfrentamiento(
+        1280,
+        720,
+        scene
+        );
+
+    nivel2->iniciar();
+
+    timerJuego->start(16);
 }
 
 void Juego::mostrarPantallaCarga(int nivel)
@@ -281,11 +315,10 @@ void Juego::actualizarCarga()
 }
 void Juego::teclaPresionada(int tecla)
 {
-    if(!nivel1)
+    if(!nivel1 && !nivel2)
     {
         return;
     }
-
     switch(tecla)
     {
     case Qt::Key_W:
@@ -314,14 +347,32 @@ void Juego::teclaPresionada(int tecla)
 
     case Qt::Key_R:
 
-        nivel1->iniciarCarga();
+        if(nivel1)
+        {
+            nivel1->iniciarCarga();
+        }
+
+        if(nivel2)
+        {
+            if(teclaShift)
+            {
+                nivel2->activarDisparoParabolico();
+            }
+
+            nivel2->iniciarCarga();
+        }
+
+        break;
+    case Qt::Key_Shift:
+
+        teclaShift = true;
 
         break;
     }
 }
 void Juego::teclaLiberada(int tecla)
 {
-    if(!nivel1)
+    if(!nivel1 && !nivel2)
     {
         return;
     }
@@ -354,14 +405,28 @@ void Juego::teclaLiberada(int tecla)
 
     case Qt::Key_R:
 
-        nivel1->detenerCarga();
+        if(nivel1)
+        {
+            nivel1->detenerCarga();
+        }
+
+        if(nivel2)
+        {
+            nivel2->detenerCarga();
+        }
+
+        break;
+    case Qt::Key_Shift:
+
+        teclaShift = false;
 
         break;
     }
+
 }
 void Juego::actualizarJuego()
 {
-    if(!nivel1)
+    if(!nivel1 && !nivel2)
     {
         return;
     }
@@ -393,16 +458,38 @@ void Juego::actualizarJuego()
         direccion.getY() != 0
         )
     {
-        nivel1->moverJugador(
-            direccion
-            );
+        if(nivel1)
+        {
+            nivel1->moverJugador(
+                direccion
+                );
+        }
+
+        if(nivel2)
+        {
+            nivel2->moverJugador(
+                direccion
+                );
+        }
     }
 
-    nivel1->actualizar(0.016);
-    emit golesActualizados(
-        nivel1->getGoles()
-        );
+    if(nivel1)
+    {
+        nivel1->actualizar(0.016);
+    }
+
+    if(nivel2)
+    {
+        nivel2->actualizar(0.016);
+    }
+    if(nivel1)
+    {
+        emit golesActualizados(
+            nivel1->getGoles()
+            );
+    }
     if(
+        nivel1 &&
         nivel1->estaTerminado()
         &&
         !victoriaMostrada

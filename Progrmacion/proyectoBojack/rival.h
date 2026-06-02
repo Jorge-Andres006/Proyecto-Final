@@ -34,6 +34,7 @@ public:
     void aprender();
 
     bool getDebeAtacar() const;
+    TipoEntidad getTipo() const override;
 };
 
 #endif

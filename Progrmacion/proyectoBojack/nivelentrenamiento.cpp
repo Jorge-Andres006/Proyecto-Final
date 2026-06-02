@@ -56,7 +56,6 @@ NivelEntrenamiento::NivelEntrenamiento(
     spriteSheetDisparo = QPixmap(
         ":/new/prefix1/Imagenes/SpriteDisparoBojackH.png"
         );
-    qDebug() << spriteSheetDisparo.isNull();
     this->scene = scene;
 
     itemJugador = nullptr;
@@ -129,8 +128,7 @@ NivelEntrenamiento::NivelEntrenamiento(
 
 }
 
-NivelEntrenamiento::~NivelEntrenamiento()
-{
+NivelEntrenamiento::~NivelEntrenamiento(){
 
     for(Obstaculo* obstaculo : obstaculos)
     {

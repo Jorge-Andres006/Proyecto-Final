@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QMediaPlayer>
 #include "nivelEntrenamiento.h"
+#include "nivelenfrentamiento.h"
 
 class Juego : public QObject
 {
@@ -44,6 +45,7 @@ private slots:
 
 private:
     NivelEntrenamiento *nivel1;
+    NivelEnfrentamiento* nivel2;
 
     QGraphicsScene *scene;
 
@@ -71,6 +73,7 @@ private:
     bool teclaA;
     bool teclaS;
     bool teclaD;
+    bool teclaShift;
 
     bool victoriaMostrada;
 

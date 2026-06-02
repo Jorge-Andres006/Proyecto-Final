@@ -20,7 +20,9 @@ Arco::Arco(const Vector2D &posicion,double ancho,double alto) {
     this->alto = alto;
 }
 
-bool Arco::detectarGol(const Disco &disco) const
+bool Arco::detectarGol(
+    const Disco &disco
+    ) const
 {
     Vector2D posDisco = disco.getPosicion();
 
@@ -34,10 +36,7 @@ bool Arco::detectarGol(const Disco &disco) const
         (posDisco.getY() + radio >= posicion.getY()) &&
         (posDisco.getY() - radio <= posicion.getY() + alto);
 
-    bool vieneDeFrente =
-        disco.getVelocidad().getX() > 0;
-
-    return (dentroX && dentroY && vieneDeFrente);
+    return dentroX && dentroY;
 }
 Vector2D Arco::getPosicion() const {
 
