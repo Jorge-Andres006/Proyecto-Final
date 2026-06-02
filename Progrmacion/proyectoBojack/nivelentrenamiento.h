@@ -68,6 +68,18 @@ private:
     int frameActual;
 
     double tiempoAnimacion;
+    bool disparando;
+
+    int frameDisparo;
+
+    double tiempoDisparo;
+    bool disparoPendiente;
+
+    double potenciaDisparo;
+
+    Vector2D direccionDisparo;
+    QPixmap spriteSheetDisparo;
+
     QPixmap discoVertical;
     QPixmap discoHorizontal;
     QMediaPlayer* sonidoTodd;
@@ -100,6 +112,7 @@ public:
 
     double getPotencia() const;
     int getGoles() const;
+    void actualizarDisparo(double dt);
 
 };
 

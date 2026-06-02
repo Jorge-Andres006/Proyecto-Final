@@ -14,5 +14,6 @@
         <file>Imagenes/ToddAudio.wav</file>
         <file>Imagenes/CelebracionGol.wav</file>
         <file>Imagenes/Victoria.wav</file>
+        <file>Imagenes/SpriteDisparoBojackH.png</file>
     </qresource>
 </RCC>

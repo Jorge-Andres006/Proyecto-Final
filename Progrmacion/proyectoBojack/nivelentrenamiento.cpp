@@ -53,6 +53,10 @@ NivelEntrenamiento::NivelEntrenamiento(
     spriteSheetObstaculos = QPixmap(
         ":/new/prefix1/Imagenes/Obstaculos.png"
         );
+    spriteSheetDisparo = QPixmap(
+        ":/new/prefix1/Imagenes/SpriteDisparoBojackH.png"
+        );
+    qDebug() << spriteSheetDisparo.isNull();
     this->scene = scene;
 
     itemJugador = nullptr;
@@ -73,8 +77,14 @@ NivelEntrenamiento::NivelEntrenamiento(
     frameActual = 0;
 
     tiempoAnimacion = 0.0;
+    frameDisparo = 0;
+    tiempoDisparo = 0.0;
+    potenciaDisparo = 0.0;
 
+    direccionDisparo = Vector2D(1,0);
 
+    disparoPendiente = false;
+    disparando = false;
     cargandoDisparo = false;
     tieneDisco = false;
     invulnerable = false;
@@ -263,6 +273,7 @@ void NivelEntrenamiento::actualizar(double dt)
 {
     tiempoAnimacion += dt;
     tiempo += dt;
+    actualizarDisparo(dt);
     if(tiempoRecogerDisco > 0.0)
     {
         tiempoRecogerDisco -= dt;
@@ -428,7 +439,7 @@ void NivelEntrenamiento::actualizar(double dt)
         }
     }
 
-    if(tieneDisco)
+    if(tieneDisco && !disparando)
     {
         Vector2D offset =
             direccionJugador * 35.0 +
@@ -690,20 +701,22 @@ void NivelEntrenamiento::detenerCarga()
 
     cargandoDisparo = false;
 
-    tieneDisco = false;
-
-    tiempoRecogerDisco = 0.5;
-
-    Vector2D direccion = direccionJugador;
-
     if(potencia < 20.0)
     {
         potencia = 20.0;
     }
-    disco.setVelocidad(
-        direccion * (potencia * 5)
-        );
-    potencia = 0.0;
+
+    disparando = true;
+
+    disparoPendiente = true;
+
+    frameDisparo = 0;
+
+    tiempoDisparo = 0.0;
+
+    direccionDisparo = direccionJugador;
+
+    potenciaDisparo = potencia;
 }
 
 
@@ -715,7 +728,10 @@ void NivelEntrenamiento::moverJugador(
     const Vector2D& direccion
     )
 {
-    if(direccion.getX() != 0 || direccion.getY() != 0)
+    if(
+        !disparando &&
+        (direccion.getX() != 0 || direccion.getY() != 0)
+        )
     {
         direccionJugador = direccion.normalizar();
         if(tiempoAnimacion > 0.15)
@@ -844,4 +860,126 @@ void NivelEntrenamiento::moverJugador(
 int NivelEntrenamiento::getGoles() const
 {
     return goles;
+}
+void NivelEntrenamiento::actualizarDisparo(double dt)
+{
+    if(!disparando)
+    {
+        return;
+    }
+
+    tiempoDisparo += dt;
+    int fila = 0;
+    int frameReal = frameDisparo;
+    int frameMaximo = 8;
+
+    if(direccionJugador.getX() > 0)
+    {
+
+        fila = 0;
+
+        int framesDerecha[3] ={4, 5,6};
+
+        if(frameDisparo < 3)
+        {
+            frameReal = framesDerecha[frameDisparo];
+        }
+
+        frameMaximo = 3;
+    }
+    else if(direccionJugador.getY() < 0)
+    {
+
+        fila = 1;
+        int framesArriba[3]={6,5,4};
+        if(frameDisparo < 3)
+        {
+            frameReal = framesArriba[frameDisparo];
+        }
+        frameMaximo = 3;
+    }
+    else if(direccionJugador.getX() < 0)
+    {
+        fila = 3;
+
+        int framesIzquierda[3] ={7,6,5};
+
+        if(frameDisparo < 3)
+        {
+            frameReal = framesIzquierda[frameDisparo];
+        }
+
+        frameMaximo = 3;
+    }
+    else
+    {
+
+        fila = 3;
+
+        frameMaximo = 3;
+    }
+    if(tiempoDisparo > 0.05)
+    {
+        frameDisparo++;
+
+        tiempoDisparo = 0.0;
+    }
+
+    if(frameDisparo >= frameMaximo)
+    {
+        disparando = false;
+
+        frameDisparo = 0;
+
+        if(disparoPendiente)
+        {
+            disparoPendiente = false;
+
+            tieneDisco = false;
+
+            tiempoRecogerDisco = 0.5;
+
+            Vector2D offsetDisparo;
+
+            if(direccionDisparo.getX() > 0)
+            {
+                offsetDisparo = Vector2D(70,30);
+            }
+            else if(direccionDisparo.getX() < 0)
+            {
+                offsetDisparo = Vector2D(-70,30);
+            }
+            else if(direccionDisparo.getY() < 0)
+            {
+                offsetDisparo = Vector2D(0,-40);
+            }
+            else
+            {
+                offsetDisparo = Vector2D(0,40);
+            }
+
+            disco.setPosicion(
+                jugador.getPosicion() +
+                offsetDisparo
+                );
+
+            disco.setVelocidad(
+                direccionDisparo *
+                (potenciaDisparo * 5)
+                );
+
+            potencia = 0.0;
+        }
+
+        return;
+    }
+
+    itemJugador->setPixmap(
+        spriteSheetDisparo.copy(
+            frameReal * 135+20,
+            fila * 147,
+            135,
+            147
+            )
+        );
 }

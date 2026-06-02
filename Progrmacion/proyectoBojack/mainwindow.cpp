@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
         );
     audioMenu->setVolume(0.35);
 
-    audioNivel1->setVolume(0.25);
+    audioNivel1->setVolume(0.1);
 
     audioNivel2->setVolume(0.35);
     audioVictoria->setVolume(1.0);
