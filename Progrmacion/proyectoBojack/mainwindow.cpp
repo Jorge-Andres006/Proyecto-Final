@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->labelGoles->hide();
     ui->Pausa->hide();
+    ui->AyudaPanel->hide();
     resize(1280, 720);
 
     enNivel = false;
@@ -254,6 +255,28 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         &MainWindow::mostrarVictoria
         );
+    connect(
+        ui->Ayuda,
+        &QPushButton::clicked,
+        this,
+        [this]()
+        {
+            ui->Pausa->hide();
+
+            ui->AyudaPanel->show();
+        }
+        );
+    connect(
+        ui->VolverAyuda,
+        &QPushButton::clicked,
+        this,
+        [this]()
+        {
+            ui->AyudaPanel->hide();
+
+            ui->Pausa->show();
+        }
+        );
 }
 
 MainWindow::~MainWindow()
@@ -313,11 +336,23 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
         return;
     }
+
     if(cargando)
     {
+        return;
+    }
+
+
+    if(event->key() == Qt::Key_Escape &&
+        ui->AyudaPanel->isVisible())
+    {
+        ui->AyudaPanel->hide();
+
+        ui->Pausa->show();
 
         return;
     }
+
     if(event->key() == Qt::Key_Escape && enNivel)
     {
         if(ui->Pausa->isVisible())
@@ -336,12 +371,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui->labelGoles->hide();
         }
     }
+
     if(enNivel)
     {
         juego->teclaPresionada(
             event->key()
             );
     }
+
     QMainWindow::keyPressEvent(event);
 }
 void MainWindow::keyReleaseEvent(
@@ -373,6 +410,7 @@ void MainWindow::volverMenu()
     juego->mostrarMenu();
     ui->labelGoles->hide();
     ui->Pausa->hide();
+    ui->AyudaPanel->hide();
 
     ui->botonNivel1->show();
     ui->botonNivel2->show();
