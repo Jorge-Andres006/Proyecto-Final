@@ -1,4 +1,6 @@
 #include "personaje.h"
+#include "qdebug.h"
+#include "qlogging.h"
 
 using namespace std;
 
@@ -59,7 +61,9 @@ void Personaje::limitarVelocidad() {
 
 void Personaje::disparar(Disco &disco, const Vector2D &direccion) {
 
+
     if (!puedeGolpear(disco)) {
+
         return;
     }
 
@@ -68,6 +72,7 @@ void Personaje::disparar(Disco &disco, const Vector2D &direccion) {
     Vector2D impulso = dirNormalizada * fuerzaDisparo;
 
     disco.aplicarImpulso(impulso);
+
 }
 
 bool Personaje::puedeGolpear(const Disco &disco) const {

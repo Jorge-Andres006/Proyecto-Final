@@ -18,7 +18,7 @@ protected:
 
 public:
 
-    static constexpr double VELOCIDAD_MAXIMA_BASE = 10.0;
+    static constexpr double VELOCIDAD_MAXIMA_BASE = 1000.0;
 
     static constexpr double ACELERACION_BASE = 5.0;
 

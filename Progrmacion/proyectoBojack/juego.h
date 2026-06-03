@@ -74,6 +74,7 @@ private:
     bool teclaS;
     bool teclaD;
     bool teclaShift;
+    bool teclaC;
 
     bool victoriaMostrada;
 

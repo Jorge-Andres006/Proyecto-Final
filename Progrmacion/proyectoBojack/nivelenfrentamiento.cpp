@@ -22,17 +22,17 @@ NivelEnfrentamiento::NivelEnfrentamiento(
         10.0
         ),
 
-    /*rival(
+    rival(
         Vector2D(
             1100.0,
             alto/2.0
             ),
-        20.0,
-        10.0,
+        20,
+        20,
         5.0,
-        20.0,
+        500.0,
         10.0
-        ),*/
+        ),
 
     disco(
         Vector2D(
@@ -86,6 +86,7 @@ NivelEnfrentamiento::NivelEnfrentamiento(
             );
 
     itemJugador = nullptr;
+    itemRival = nullptr;
 
     itemDisco = nullptr;
 
@@ -137,6 +138,8 @@ NivelEnfrentamiento::NivelEnfrentamiento(
 }
 NivelEnfrentamiento::~NivelEnfrentamiento()
 {
+    qDebug() << "Destruyendo NivelEnfrentamiento";
+
 }
 void NivelEnfrentamiento::iniciar()
 {
@@ -159,6 +162,15 @@ void NivelEnfrentamiento::iniciar()
                 135,
                 147
                 )
+            );
+    itemRival =
+        scene->addEllipse(
+            0,
+            0,
+            40,
+            40,
+            QPen(Qt::blue),
+            QBrush(Qt::blue)
             );
 
     itemJugador->setScale(
@@ -276,6 +288,15 @@ void NivelEnfrentamiento::actualizar(double dt)
             barraPotencia->setBrush(Qt::red);
         }
     }
+    rival.percibir(
+        disco,
+        jugador
+        );
+
+    rival.razonar();
+
+    rival.actuar(
+        disco);
     mundo.actualizar(dt);
     if(proyectilActivo)
     {
@@ -364,9 +385,20 @@ void NivelEnfrentamiento::actualizar(double dt)
     {
         reiniciarDisco();
     }
-    if(!tieneDisco &&tiempoRecogerDisco <= 0.0 &&!proyectilActivo
-        )
+    if(!tieneDisco &&!rival.getTieneDisco() &&tiempoRecogerDisco <= 0.0 &&!proyectilActivo)
     {
+        if(!tieneDisco &&!rival.getTieneDisco() &&!proyectilActivo
+            )
+        {
+            if(
+                rival.getPosicion().distancia(
+                    disco.getPosicion()
+                    ) < 35.0
+                )
+            {
+                rival.setTieneDisco(true);
+            }
+        }
         Vector2D puntoRecogida =jugador.getPosicion() +Vector2D(0,30);
 
         if(
@@ -380,6 +412,7 @@ void NivelEnfrentamiento::actualizar(double dt)
     }
     if(tieneDisco && !disparando)
     {
+
         Vector2D offset =
             direccionJugador * 35.0 +
             Vector2D(0,30);
@@ -409,6 +442,16 @@ void NivelEnfrentamiento::actualizar(double dt)
             Vector2D(0,0)
             );
     }
+    if(rival.getTieneDisco())
+    {
+        disco.setPosicion(
+            rival.getPosicion()
+            );
+
+        disco.setVelocidad(
+            Vector2D(0,0)
+            );
+    }
 
     if(itemJugador)
     {
@@ -417,7 +460,13 @@ void NivelEnfrentamiento::actualizar(double dt)
             jugador.getPosicion().getY() - 25
             );
     }
-
+    if(itemRival)
+    {
+        itemRival->setPos(
+            rival.getPosicion().getX() - 20,
+            rival.getPosicion().getY() - 20
+            );
+    }
     if(itemDisco)
     {
         itemDisco->setPos(
@@ -535,16 +584,14 @@ void NivelEnfrentamiento::moverJugador(
                 );
         }
     }
-    double velocidadJugador = 1.2;
+    double velocidadJugador = 1;
 
     if(tieneDisco)
     {
         velocidadJugador =0.6;
     }
 
-    Vector2D nuevaPosicion =
-        jugador.getPosicion() +
-        direccion * velocidadJugador;
+    Vector2D nuevaPosicion =jugador.getPosicion() +direccion * velocidadJugador;
 
     double radio = jugador.getRadio();
 
@@ -594,7 +641,11 @@ void NivelEnfrentamiento::moverJugador(
             break;
         }
     }*/
-
+    double distanciaRival =nuevaPosicion.distancia(rival.getPosicion());
+    if(distanciaRival <jugador.getRadio() +rival.getRadio())
+    {
+        hayColision = true;
+    }
     if(!hayColision)
     {
         jugador.setPosicion(
@@ -754,6 +805,7 @@ void NivelEnfrentamiento::reiniciarDisco()
         );
 
     tieneDisco = false;
+    rival.setTieneDisco(false);
 
     potencia = 0.0;
 
@@ -788,4 +840,26 @@ void NivelEnfrentamiento::verificarGol()
 }
 void NivelEnfrentamiento::activarDisparoParabolico(){
     disparoParabolico = true;
+}
+void NivelEnfrentamiento::intentarRobo()
+{
+
+    double distancia =
+        jugador.getPosicion().distancia(
+            rival.getPosicion()
+            );
+
+    if(distancia > RANGO_ROBO)
+    {
+        return;
+    }
+
+    if(rival.getTieneDisco())
+    {
+        rival.setTieneDisco(false);
+
+        tieneDisco = true;
+
+        tiempoRecogerDisco = 0.2;
+    }
 }

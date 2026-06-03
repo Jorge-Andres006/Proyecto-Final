@@ -16,6 +16,8 @@ private:
 
     int ataquesExitosos;
     int ataquesFallidos;
+    bool tieneDisco;
+    int direccionEsquive;
 
 public:
 
@@ -29,12 +31,16 @@ public:
 
     void razonar();
 
-    void actuar(Disco &disco, double dt);
+    void actuar(Disco &disco);
 
     void aprender();
 
     bool getDebeAtacar() const;
     TipoEntidad getTipo() const override;
+    bool getTieneDisco() const;
+
+    void setTieneDisco(bool tieneDisco);
+    bool arcoBloqueado() const;
 };
 
 #endif

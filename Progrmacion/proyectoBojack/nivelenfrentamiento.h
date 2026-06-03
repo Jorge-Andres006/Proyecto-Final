@@ -60,6 +60,7 @@ private:
 
     Vector2D direccionDisparo;
     QGraphicsPixmapItem* itemJugador;
+    QGraphicsEllipseItem* itemRival;
 
     QPixmap spriteSheet;
 
@@ -85,8 +86,10 @@ private:
 
     double velocidadInicialProyectil;
 
+
     static constexpr double GRAVEDAD = 100;
     static constexpr double ANGULO_PARABOLICO = 45.0;
+    const double RANGO_ROBO = 40.3;
 
 
 public:
@@ -116,6 +119,7 @@ public:
     void verificarGol();
     void reiniciarDisco();
     void activarDisparoParabolico();
+    void intentarRobo();
 };
 
 #endif

@@ -120,7 +120,7 @@ NivelEntrenamiento::NivelEntrenamiento(
         );
 
     audioGol->setVolume(
-        0.30
+        0.15
         );
 
 
@@ -129,6 +129,8 @@ NivelEntrenamiento::NivelEntrenamiento(
 }
 
 NivelEntrenamiento::~NivelEntrenamiento(){
+    qDebug() << "Destruyendo NivelEntrenamiento";
+
 
     for(Obstaculo* obstaculo : obstaculos)
     {

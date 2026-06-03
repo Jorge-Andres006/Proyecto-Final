@@ -368,7 +368,13 @@ void Juego::teclaPresionada(int tecla)
         teclaShift = true;
 
         break;
+    case Qt::Key_C:
+
+        teclaC = true;
+
+        break;
     }
+
 }
 void Juego::teclaLiberada(int tecla)
 {
@@ -421,7 +427,13 @@ void Juego::teclaLiberada(int tecla)
         teclaShift = false;
 
         break;
+    case Qt::Key_C:
+
+        teclaC = false;
+
+        break;
     }
+
 
 }
 void Juego::actualizarJuego()
@@ -453,10 +465,7 @@ void Juego::actualizarJuego()
         direccion += Vector2D(3,0);
     }
 
-    if(
-        direccion.getX() != 0 ||
-        direccion.getY() != 0
-        )
+    if(direccion.getX() != 0 ||direccion.getY() != 0)
     {
         if(nivel1)
         {
@@ -471,6 +480,10 @@ void Juego::actualizarJuego()
                 direccion
                 );
         }
+    }
+    if(teclaC && nivel2)
+    {
+        nivel2->intentarRobo();
     }
 
     if(nivel1)
