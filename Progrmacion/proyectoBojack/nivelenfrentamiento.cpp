@@ -138,7 +138,7 @@ NivelEnfrentamiento::NivelEnfrentamiento(
 }
 NivelEnfrentamiento::~NivelEnfrentamiento()
 {
-    qDebug() << "Destruyendo NivelEnfrentamiento";
+
 
 }
 void NivelEnfrentamiento::iniciar()
@@ -289,12 +289,22 @@ void NivelEnfrentamiento::actualizar(double dt)
         }
     }
     rival.percibir(
-        disco,
-        jugador
+        disco,jugador, tieneDisco
         );
 
     rival.razonar();
+    if(
+        rival.getDebeRobar() &&
+        tieneDisco
+        )
+    {
+        tieneDisco = false;
 
+        rival.setTieneDisco(true);
+        tiempoRecogerDisco = 0.5;
+
+        rival.setTiempoIntentoRobo(1.5);
+    }
     rival.actuar(
         disco);
     mundo.actualizar(dt);
@@ -584,7 +594,7 @@ void NivelEnfrentamiento::moverJugador(
                 );
         }
     }
-    double velocidadJugador = 1;
+    double velocidadJugador = 0.8;
 
     if(tieneDisco)
     {
@@ -823,17 +833,12 @@ void NivelEnfrentamiento::verificarGol()
     if(arcoRival.detectarGol(disco))
     {
         golesJugador++;
-
-        qDebug() << "GOOOOL JUGADOR";
-
         reiniciarDisco();
     }
 
     if(arcoJugador.detectarGol(disco))
     {
         golesRival++;
-
-        qDebug() << "GOOOOL RIVAL";
 
         reiniciarDisco();
     }

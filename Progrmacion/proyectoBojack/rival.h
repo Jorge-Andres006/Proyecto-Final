@@ -13,11 +13,13 @@ private:
     double distanciaDisco;
 
     bool debeAtacar;
-
+    bool jugadorTieneDisco;
     int ataquesExitosos;
     int ataquesFallidos;
     bool tieneDisco;
     int direccionEsquive;
+    double tiempoIntentoRobo;
+    bool debeRobar;
 
 public:
 
@@ -27,7 +29,7 @@ public:
 
     void actualizar(double dt) override;
 
-    void percibir(const Disco &disco,const Personaje &jugador);
+    void percibir(const Disco &disco, const Personaje &jugador,bool jugadorTieneDisco);
 
     void razonar();
 
@@ -41,6 +43,9 @@ public:
 
     void setTieneDisco(bool tieneDisco);
     bool arcoBloqueado() const;
+    bool puedeIntentarRobo() const;
+    bool getDebeRobar() const;
+    void setTiempoIntentoRobo(double tiempo);
 };
 
 #endif

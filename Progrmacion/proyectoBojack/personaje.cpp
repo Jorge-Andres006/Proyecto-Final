@@ -1,6 +1,5 @@
 #include "personaje.h"
-#include "qdebug.h"
-#include "qlogging.h"
+
 
 using namespace std;
 

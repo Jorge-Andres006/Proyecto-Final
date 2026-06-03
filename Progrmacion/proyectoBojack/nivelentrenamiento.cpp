@@ -122,16 +122,9 @@ NivelEntrenamiento::NivelEntrenamiento(
     audioGol->setVolume(
         0.15
         );
-
-
-
-
 }
 
 NivelEntrenamiento::~NivelEntrenamiento(){
-    qDebug() << "Destruyendo NivelEntrenamiento";
-
-
     for(Obstaculo* obstaculo : obstaculos)
     {
         delete obstaculo;
@@ -149,8 +142,7 @@ void NivelEntrenamiento::iniciar()
     mundo.agregarEntidad(&disco);
     mundo.agregarEntidad(&jugador);
 
-    Obstaculo* obstaculo =
-        new Obstaculo(
+    Obstaculo* obstaculo =new Obstaculo(
             Vector2D(
                 1100,
                 300
@@ -565,7 +557,6 @@ void NivelEntrenamiento::verificarGol()
 
         if(goles >= 7)
         {
-            qDebug() << "Nivel completado";
 
             finalizar();
         }
@@ -797,8 +788,7 @@ void NivelEntrenamiento::moverJugador(
         velocidadJugador =0.6;
     }
 
-    Vector2D nuevaPosicion =
-        jugador.getPosicion() +
+    Vector2D nuevaPosicion =jugador.getPosicion() +
         direccion * velocidadJugador;
 
     double radio = jugador.getRadio();

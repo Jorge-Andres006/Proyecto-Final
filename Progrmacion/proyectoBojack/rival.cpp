@@ -1,6 +1,5 @@
 #include "rival.h"
-#include "qdebug.h"
-#include "qlogging.h"
+
 
 using namespace std;
 
@@ -14,11 +13,15 @@ Rival::Rival() : Personaje() {
 
     debeAtacar = false;
     tieneDisco = false;
+    jugadorTieneDisco = false;
+    debeRobar = false;
 
     ataquesExitosos = 0;
 
     ataquesFallidos = 0;
     direccionEsquive = 1;
+
+    tiempoIntentoRobo = 0.0;
 }
 Rival::~Rival(){
 
@@ -33,29 +36,51 @@ Rival::Rival(const Vector2D &posicion,double radio,double velocidadMaxima,double
 
     debeAtacar = false;
     tieneDisco = false;
+    jugadorTieneDisco = false;
+    debeRobar = false;
 
     ataquesExitosos = 0;
 
     ataquesFallidos = 0;
     direccionEsquive = 1;
+    tiempoIntentoRobo = 0.0;
 }
 
-void Rival::actualizar(double dt) {
-
+void Rival::actualizar(double dt)
+{
     Personaje::actualizar(dt);
+
+    if(tiempoIntentoRobo > 0.0)
+    {
+        tiempoIntentoRobo -= dt;
+    }
 }
 
-void Rival::percibir(const Disco &disco,const Personaje &jugador) {
+void Rival::percibir(const Disco &disco,const Personaje &jugador,bool jugadorTieneDisco) {
 
     posicionDisco = disco.getPosicion();
 
     posicionJugador = jugador.getPosicion();
 
     distanciaDisco = posicion.distancia(posicionDisco);
+    this->jugadorTieneDisco =jugadorTieneDisco;
 }
 
 void Rival::razonar()
 {
+    debeRobar = false;
+    if(jugadorTieneDisco &&puedeIntentarRobo())
+    {
+        double distanciaJugador =posicion.distancia(
+                posicionJugador
+                );
+
+        if(distanciaJugador <=40)
+        {
+
+            debeRobar = true;
+        }
+    }
     Vector2D centroArcoJugador(
         110,
         315
@@ -70,16 +95,10 @@ void Rival::razonar()
     {
         if(arcoBloqueado())
         {
-            qDebug()
-            << "ARCO BLOQUEADO";
-
             debeAtacar = false;
         }
         else
         {
-            qDebug()
-            << "TIRO LIBRE";
-
             debeAtacar = true;
         }
     }
@@ -97,14 +116,50 @@ void Rival::actuar(Disco &disco)
                 315
                 ) - posicion;
     }
+    else if(jugadorTieneDisco)
+    {
+        Vector2D centroArco(
+            1170,
+            315
+            );
+
+        double xJugador =posicionJugador.getX();
+
+        if(xJugador < 635)
+        {
+            direccion =posicionJugador -posicion;
+        }
+        else if(xJugador > 950)
+        {
+            direccion =posicionJugador -posicion;
+        }
+        else
+        {
+            Vector2D direccionArco =
+                (
+                    centroArco -
+                    posicionJugador
+                    ).normalizar();
+
+            Vector2D puntoDefensivo =
+                posicionJugador +
+                direccionArco * 120;
+
+            direccion =puntoDefensivo -posicion;
+        }
+    }
     else
     {
-        direccion =posicionDisco - posicion;
+        Vector2D posicionFutura =
+            posicionDisco +
+            disco.getVelocidad() * 0.7;
+
+        direccion =
+            posicionFutura - posicion;
     }
     if(tieneDisco && arcoBloqueado())
     {
-        Vector2D direccionArco =
-            (
+        Vector2D direccionArco =(
                 Vector2D(
                     110,
                     315
@@ -154,8 +209,7 @@ void Rival::actuar(Disco &disco)
     }
     if(debeAtacar)
     {
-        Vector2D direccionDisparo =
-            Vector2D(
+        Vector2D direccionDisparo =Vector2D(
                 110,
                 315
                 ) - posicion;
@@ -328,6 +382,20 @@ bool Rival::arcoBloqueado() const
             );
 
     return distanciaJugadorLinea < 40.0;
+}
+bool Rival::puedeIntentarRobo() const
+{
+    return tiempoIntentoRobo <= 0.0;
+}
+bool Rival::getDebeRobar() const
+{
+    return debeRobar;
+}
+void Rival::setTiempoIntentoRobo(
+    double tiempo
+    )
+{
+    tiempoIntentoRobo = tiempo;
 }
 TipoEntidad Rival::getTipo() const
 {
