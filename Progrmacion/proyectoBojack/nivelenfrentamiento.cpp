@@ -70,18 +70,18 @@ NivelEnfrentamiento::NivelEnfrentamiento(
 {
     this->scene = scene;
 
-    spriteSheet =
-        QPixmap(
+    spriteSheet =QPixmap(
             ":/new/prefix1/Imagenes/Sprites.png"
             );
-
-    spriteSheetDisparo =
+    spriteSheetRival =
         QPixmap(
+            ":/new/prefix1/Imagenes/mr.penuatButter.png"
+            );
+    spriteSheetDisparo =QPixmap(
             ":/new/prefix1/Imagenes/SpriteDisparoBojackH.png"
             );
 
-    spriteSheetDisco =
-        QPixmap(
+    spriteSheetDisco =QPixmap(
             ":/new/prefix1/Imagenes/spritesDiscoSinFondo.png"
             );
 
@@ -96,18 +96,23 @@ NivelEnfrentamiento::NivelEnfrentamiento(
     itemArcoJugador = nullptr;
     itemArcoRival = nullptr;
 
+    textoCronometro = nullptr;
 
     golesJugador = 0;
     golesRival = 0;
     potencia = 0.0;
     tiempoRecogerDisco = 0.0;
     frameActual = 0;
+    frameRival = 0;
     tiempoAnimacion = 0.0;
+    tiempoAnimacionRival = 0.0;
     frameDisparo = 0;
     tiempoDisparo = 0.0;
     potenciaDisparo = 0.0;
     tiempoProyectil = 0.0;
     velocidadInicialProyectil = 0.0;
+    tiempoDisparoRival = 0.0;
+    tiempoObstaculos = 0.0;
     posicionInicialProyectil =
         Vector2D(
             0,
@@ -135,6 +140,7 @@ NivelEnfrentamiento::NivelEnfrentamiento(
     tieneDisco = false;
     disparoParabolico = false;
     proyectilActivo = false;
+    rivalDisparando = false;
 }
 NivelEnfrentamiento::~NivelEnfrentamiento()
 {
@@ -164,19 +170,21 @@ void NivelEnfrentamiento::iniciar()
                 )
             );
     itemRival =
-        scene->addEllipse(
-            0,
-            0,
-            40,
-            40,
-            QPen(Qt::blue),
-            QBrush(Qt::blue)
+        scene->addPixmap(
+            spriteSheetRival.copy(
+                0,
+                0,
+                135,
+                147
+                )
             );
 
     itemJugador->setScale(
         0.6
         );
-
+    itemRival->setScale(
+        0.6
+        );
     discoVertical =spriteSheetDisco.copy(
             120,
             0,
@@ -232,13 +240,77 @@ void NivelEnfrentamiento::iniciar()
         QPen(Qt::black),
         QBrush(Qt::green)
         );
+    textoCronometro =
+        scene->addText("04:00");
+
+    textoCronometro->setDefaultTextColor(
+        Qt::white
+        );
+
+    textoCronometro->setPos(
+        1100,
+        20
+        );
+
+    textoCronometro->setScale(
+        2.0
+        );
+
+    textoCronometro->setZValue(
+        100
+        );
+    generarObstaculos();
 }
 void NivelEnfrentamiento::actualizar(double dt)
 {
     tiempo += dt;
+    double tiempoRestante =240 - tiempo;
 
+    if(tiempoRestante < 0)
+    {
+        tiempoRestante = 0;
+    }
+
+    int minutos =static_cast<int>(
+            tiempoRestante
+            ) / 60;
+
+    int segundos =static_cast<int>(
+            tiempoRestante
+            ) % 60;
+    QString textoTiempo =
+        QString("%1:%2")
+            .arg(
+                minutos,
+                2,
+                10,
+                QChar('0')
+                )
+            .arg(
+                segundos,
+                2,
+                10,
+                QChar('0')
+                );
+
+    textoCronometro->setPlainText(
+        textoTiempo
+        );
+    if(tiempo >= 240)
+    {
+        terminado = true;
+
+    }
+    tiempoObstaculos += dt;
+
+    if(tiempoObstaculos >= 10.0)
+    {
+        generarObstaculos();
+
+        tiempoObstaculos = 0.0;
+    }
     tiempoAnimacion += dt;
-
+    tiempoAnimacionRival += dt;
     actualizarDisparo(dt);
 
     if(tiempoRecogerDisco > 0.0)
@@ -301,12 +373,15 @@ void NivelEnfrentamiento::actualizar(double dt)
         tieneDisco = false;
 
         rival.setTieneDisco(true);
+
         tiempoRecogerDisco = 0.5;
 
         rival.setTiempoIntentoRobo(1.5);
     }
-    rival.actuar(
-        disco);
+    rival.setPosicionesObstaculos(
+        posicionesObstaculos
+        );
+    rival.actuar(disco);
     mundo.actualizar(dt);
     if(proyectilActivo)
     {
@@ -406,6 +481,7 @@ void NivelEnfrentamiento::actualizar(double dt)
                     ) < 35.0
                 )
             {
+
                 rival.setTieneDisco(true);
             }
         }
@@ -470,11 +546,116 @@ void NivelEnfrentamiento::actualizar(double dt)
             jugador.getPosicion().getY() - 25
             );
     }
+    if(rival.getAcabaDeDisparar())
+    {
+        rivalDisparando = true;
+
+        tiempoDisparoRival = 0.2;
+        rival.setAcabaDeDisparar(false);
+    }
+    if(rivalDisparando)
+    {
+        tiempoDisparoRival -= dt;
+
+        if(tiempoDisparoRival <= 0.0)
+        {
+            rivalDisparando = false;
+        }
+    }
     if(itemRival)
     {
+        Vector2D direccionRival =rival.getDireccionActual();
+
+        if(rivalDisparando)
+        {
+            itemRival->setPixmap(
+                spriteSheetRival.copy(
+                    7 * 135,
+                    441,
+                    135,
+                    147
+                    )
+                );
+        }
+        else
+        {
+
+       if(tiempoAnimacionRival > 0.15)
+        {
+            frameRival++;
+
+            if(frameRival >= 8)
+            {
+                frameRival = 0;
+            }
+
+            tiempoAnimacionRival = 0.0;
+        }
+
+       if(
+           abs(direccionRival.getX()) >
+           abs(direccionRival.getY())
+           )
+       {
+           int frameLateral = frameRival;
+
+           if(frameLateral > 6)
+           {
+               frameLateral = 0;
+           }
+
+           if(direccionRival.getX() > 0)
+           {
+               itemRival->setPixmap(
+                   spriteSheetRival.copy(
+                       frameLateral * 135,
+                       294,
+                       135,
+                       147
+                       )
+                   );
+           }
+           else
+           {
+               itemRival->setPixmap(
+                   spriteSheetRival.copy(
+                       frameLateral * 135,
+                       441,
+                       135,
+                       147
+                       )
+                   );
+           }
+       }
+       else
+       {
+           if(direccionRival.getY() > 0)
+           {
+               itemRival->setPixmap(
+                   spriteSheetRival.copy(
+                       frameRival * 135,
+                       0,
+                       135,
+                       147
+                       )
+                   );
+           }
+           else
+           {
+               itemRival->setPixmap(
+                   spriteSheetRival.copy(
+                       frameRival * 135,
+                       147,
+                       135,
+                       147
+                       )
+                   );
+           }
+       }
+        }
         itemRival->setPos(
-            rival.getPosicion().getX() - 20,
-            rival.getPosicion().getY() - 20
+            rival.getPosicion().getX() - 25,
+            rival.getPosicion().getY() - 25
             );
     }
     if(itemDisco)
@@ -635,7 +816,8 @@ void NivelEnfrentamiento::moverJugador(
 
     bool hayColision = false;
 
-    /*for(Obstaculo* obstaculo : obstaculos)
+    for(const Vector2D& posicionObstaculo :
+         posicionesObstaculos)
     {
         Vector2D puntoColision =
             nuevaPosicion +
@@ -643,14 +825,14 @@ void NivelEnfrentamiento::moverJugador(
 
         if(
             puntoColision.distancia(
-                obstaculo->getPosicion()
+                posicionObstaculo
                 ) < 35
             )
         {
             hayColision = true;
             break;
         }
-    }*/
+    }
     double distanciaRival =nuevaPosicion.distancia(rival.getPosicion());
     if(distanciaRival <jugador.getRadio() +rival.getRadio())
     {
@@ -867,4 +1049,96 @@ void NivelEnfrentamiento::intentarRobo()
 
         tiempoRecogerDisco = 0.2;
     }
+}
+void NivelEnfrentamiento::generarObstaculos()
+{
+    eliminarObstaculos();
+
+    for(int i = 0; i < 15; i++)
+    {
+        double x =
+            LIMITE_IZQUIERDO +
+            rand() %
+                static_cast<int>(
+                    LIMITE_DERECHO -
+                    LIMITE_IZQUIERDO
+                    );
+
+        double y =
+            LIMITE_SUPERIOR +
+            rand() %
+                static_cast<int>(
+                    LIMITE_INFERIOR -
+                    LIMITE_SUPERIOR
+                    );
+        Vector2D posicionObstaculo(
+            x + 15,
+            y + 15
+            );
+
+        bool posicionValida = true;
+
+        if(
+            posicionObstaculo.distancia(
+                jugador.getPosicion()
+                ) < 100
+            )
+        {
+            posicionValida = false;
+        }
+
+        if(
+            posicionObstaculo.distancia(
+                rival.getPosicion()
+                ) < 100
+            )
+        {
+            posicionValida = false;
+        }
+
+        if(
+            posicionObstaculo.distancia(
+                disco.getPosicion()
+                ) < 100
+            )
+        {
+            posicionValida = false;
+        }
+
+        if(!posicionValida)
+        {
+            i--;
+            continue;
+        }
+        QGraphicsEllipseItem* obstaculo =
+            scene->addEllipse(
+                x,
+                y,
+                30,
+                30,
+                QPen(Qt::black),
+                QBrush(Qt::gray)
+                );
+
+        obstaculosVisuales.push_back(
+            obstaculo
+            );
+        posicionesObstaculos.push_back(
+            Vector2D(x + 15, y + 15)
+            );
+    }
+}
+void NivelEnfrentamiento::eliminarObstaculos()
+{
+    for(auto obstaculo : obstaculosVisuales)
+    {
+        scene->removeItem(
+            obstaculo
+            );
+
+        delete obstaculo;
+    }
+
+    obstaculosVisuales.clear();
+    posicionesObstaculos.clear();
 }

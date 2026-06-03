@@ -2,6 +2,7 @@
 #define RIVAL_H
 
 #include "personaje.h"
+#include <vector>
 
 class Rival : public Personaje
 {
@@ -9,7 +10,7 @@ private:
 
     Vector2D posicionDisco;
     Vector2D posicionJugador;
-
+    Vector2D direccionActual;
     double distanciaDisco;
 
     bool debeAtacar;
@@ -20,6 +21,8 @@ private:
     int direccionEsquive;
     double tiempoIntentoRobo;
     bool debeRobar;
+    bool acabaDeDisparar;
+    std::vector<Vector2D> posicionesObstaculos;
 
 public:
 
@@ -46,6 +49,12 @@ public:
     bool puedeIntentarRobo() const;
     bool getDebeRobar() const;
     void setTiempoIntentoRobo(double tiempo);
+    Vector2D getDireccionActual() const;
+    bool getAcabaDeDisparar() const;
+    void setAcabaDeDisparar(bool valor);
+    void setPosicionesObstaculos(
+        const std::vector<Vector2D>& posiciones
+        );
 };
 
 #endif

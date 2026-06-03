@@ -1,6 +1,5 @@
 #include "rival.h"
 
-
 using namespace std;
 
 Rival::Rival() : Personaje() {
@@ -15,13 +14,14 @@ Rival::Rival() : Personaje() {
     tieneDisco = false;
     jugadorTieneDisco = false;
     debeRobar = false;
-
+    acabaDeDisparar = false;
     ataquesExitosos = 0;
 
     ataquesFallidos = 0;
     direccionEsquive = 1;
 
     tiempoIntentoRobo = 0.0;
+
 }
 Rival::~Rival(){
 
@@ -38,12 +38,14 @@ Rival::Rival(const Vector2D &posicion,double radio,double velocidadMaxima,double
     tieneDisco = false;
     jugadorTieneDisco = false;
     debeRobar = false;
+    acabaDeDisparar = false;
 
     ataquesExitosos = 0;
 
     ataquesFallidos = 0;
     direccionEsquive = 1;
     tiempoIntentoRobo = 0.0;
+
 }
 
 void Rival::actualizar(double dt)
@@ -54,6 +56,7 @@ void Rival::actualizar(double dt)
     {
         tiempoIntentoRobo -= dt;
     }
+
 }
 
 void Rival::percibir(const Disco &disco,const Personaje &jugador,bool jugadorTieneDisco) {
@@ -107,7 +110,6 @@ void Rival::razonar()
 void Rival::actuar(Disco &disco)
 {
     Vector2D direccion;
-
     if(tieneDisco)
     {
         direccion =
@@ -152,11 +154,12 @@ void Rival::actuar(Disco &disco)
     {
         Vector2D posicionFutura =
             posicionDisco +
-            disco.getVelocidad() * 0.7;
+            disco.getVelocidad() * 0.8;
 
         direccion =
             posicionFutura - posicion;
     }
+    direccionActual =direccion.normalizar();
     if(tieneDisco && arcoBloqueado())
     {
         Vector2D direccionArco =(
@@ -209,11 +212,8 @@ void Rival::actuar(Disco &disco)
     }
     if(debeAtacar)
     {
-        Vector2D direccionDisparo =Vector2D(
-                110,
-                315
-                ) - posicion;
-
+        Vector2D direccionDisparo =Vector2D(110,315) - posicion;
+        acabaDeDisparar = true;
         disparar(
             disco,
             direccionDisparo
@@ -274,10 +274,27 @@ void Rival::actuar(Disco &disco)
         double distanciaJugador =nuevaPosicion.distancia(
                 posicionJugador
                 );
+        bool hayColisionObstaculo = false;
+
+        for(const Vector2D& obstaculo :
+             posicionesObstaculos)
+        {
+            if(
+                nuevaPosicion.distancia(
+                    obstaculo
+                    ) < 35
+                )
+            {
+                hayColisionObstaculo = true;
+
+                break;
+            }
+        }
 
         if(
+            !hayColisionObstaculo &&
             distanciaJugador >
-            radio * 2
+                radio * 2
             )
         {
             setPosicion(
@@ -396,6 +413,24 @@ void Rival::setTiempoIntentoRobo(
     )
 {
     tiempoIntentoRobo = tiempo;
+}
+Vector2D Rival::getDireccionActual() const
+{
+    return direccionActual;
+}
+bool Rival::getAcabaDeDisparar() const
+{
+    return acabaDeDisparar;
+}
+void Rival::setAcabaDeDisparar(bool valor)
+{
+    acabaDeDisparar = valor;
+}
+void Rival::setPosicionesObstaculos(
+    const std::vector<Vector2D>& posiciones
+    )
+{
+    posicionesObstaculos = posiciones;
 }
 TipoEntidad Rival::getTipo() const
 {

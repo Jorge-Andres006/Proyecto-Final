@@ -46,7 +46,8 @@ private:
 
     double tiempoRecogerDisco;
     int frameActual;
-
+    int frameRival;
+    double tiempoAnimacionRival;
     double tiempoAnimacion;
     bool disparando;
 
@@ -60,10 +61,11 @@ private:
 
     Vector2D direccionDisparo;
     QGraphicsPixmapItem* itemJugador;
-    QGraphicsEllipseItem* itemRival;
+    QGraphicsPixmapItem* itemRival;
 
     QPixmap spriteSheet;
 
+    QPixmap spriteSheetRival;
     QPixmap spriteSheetDisparo;
     QGraphicsPixmapItem* itemDisco;
 
@@ -83,13 +85,19 @@ private:
     double tiempoProyectil;
 
     Vector2D posicionInicialProyectil;
-
+    QGraphicsTextItem* textoCronometro;
     double velocidadInicialProyectil;
+    bool rivalDisparando;
+    double tiempoDisparoRival;
 
+    double tiempoObstaculos;
+    std::vector<QGraphicsEllipseItem*> obstaculosVisuales;
+    std::vector<Vector2D> posicionesObstaculos;
 
     static constexpr double GRAVEDAD = 100;
     static constexpr double ANGULO_PARABOLICO = 45.0;
     const double RANGO_ROBO = 40.3;
+
 
 
 public:
@@ -120,6 +128,9 @@ public:
     void reiniciarDisco();
     void activarDisparoParabolico();
     void intentarRobo();
+
+    void generarObstaculos();
+    void eliminarObstaculos();
 };
 
 #endif
