@@ -31,6 +31,7 @@ void Obstaculo::activar() {
 
     activo = true;
 }
+
 TipoEntidad Obstaculo::getTipo() const
 {
     return OBSTACULO;

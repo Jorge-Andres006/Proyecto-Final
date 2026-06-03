@@ -67,6 +67,8 @@ NivelEntrenamiento::NivelEntrenamiento(
     hudPotencia = nullptr;
 
     barraPotencia = nullptr;
+
+    textoVidas = nullptr;
     goles = 0;
 
     tiempoSpawnObstaculos = 0.0;
@@ -79,6 +81,8 @@ NivelEntrenamiento::NivelEntrenamiento(
     frameDisparo = 0;
     tiempoDisparo = 0.0;
     potenciaDisparo = 0.0;
+    vidas = 5;
+
 
     direccionDisparo = Vector2D(1,0);
 
@@ -87,6 +91,7 @@ NivelEntrenamiento::NivelEntrenamiento(
     cargandoDisparo = false;
     tieneDisco = false;
     invulnerable = false;
+    perdio = false;
 
     tiempoInvulnerabilidad = 0.0;
     direccionJugador = Vector2D(1,0);
@@ -243,6 +248,32 @@ void NivelEntrenamiento::iniciar()
         );
 
     hudGolesItem->setScale(0.15);
+    textoVidas = scene->addText(
+        "Vidas: 5"
+        );
+
+    QFont fuenteVidas(
+        "Segoe UI",
+        24,
+        QFont::Bold
+        );
+
+    textoVidas->setFont(
+        fuenteVidas
+        );
+
+    textoVidas->setPos(
+        20,
+        20
+        );
+
+    textoVidas->setDefaultTextColor(
+        Qt::white
+        );
+
+    textoVidas->setZValue(
+        100
+        );
     QPixmap hud(":/new/prefix1/Imagenes/BarraDePotencia.png");
 
     hudPotencia = scene->addPixmap(hud);
@@ -371,9 +402,39 @@ void NivelEntrenamiento::actualizar(double dt)
         if(puntoColision.distancia(obstaculo->getPosicion()) < 30.0){
             if(!invulnerable)
             {
-                sonidoTodd->stop();
+                vidas--;
 
+                textoVidas->setPlainText(
+                    "Vidas: " +
+                    QString::number(
+                        vidas
+                        )
+                    );
+                if(tieneDisco)
+                {
+                    tieneDisco = false;
+                    potencia = 0.0;
+                    cargandoDisparo = false;
+                    disco.setPosicion(
+                        Vector2D(
+                            630,
+                            308
+                            )
+                        );
+                    disco.setVelocidad(
+                        Vector2D(0,0)
+                        );
+                }
+                invulnerable = true;
+                tiempoInvulnerabilidad = 2.0;
+                sonidoTodd->stop();
                 sonidoTodd->play();
+            }
+            if(vidas <= 0)
+            {
+                perdio = true;
+
+                finalizar();
             }
             if(tieneDisco && !invulnerable)
             {
@@ -850,6 +911,10 @@ void NivelEntrenamiento::moverJugador(
 int NivelEntrenamiento::getGoles() const
 {
     return goles;
+}
+bool NivelEntrenamiento::getPerdio() const
+{
+    return perdio;
 }
 void NivelEntrenamiento::actualizarDisparo(double dt)
 {

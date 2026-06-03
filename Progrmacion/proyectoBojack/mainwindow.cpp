@@ -32,16 +32,19 @@ MainWindow::MainWindow(QWidget *parent)
     audioNivel1 = new QAudioOutput(this);
     audioNivel2 = new QAudioOutput(this);
     audioVictoria = new QAudioOutput(this);
+    audioDerrota = new QAudioOutput(this);
 
     musicaMenu = new QMediaPlayer(this);
     musicaNivel1 = new QMediaPlayer(this);
     musicaNivel2 = new QMediaPlayer(this);
     sonidoVictoria = new QMediaPlayer(this);
+    sonidoDerrota = new QMediaPlayer(this);
 
     musicaMenu->setAudioOutput(audioMenu);
     musicaNivel1->setAudioOutput(audioNivel1);
     musicaNivel2->setAudioOutput(audioNivel2);
     sonidoVictoria->setAudioOutput(audioVictoria);
+    sonidoDerrota->setAudioOutput(audioDerrota);
 
     musicaMenu->setSource(
         QUrl("qrc:/new/prefix1/Imagenes/BoJackIntro.wav")
@@ -53,12 +56,18 @@ MainWindow::MainWindow(QWidget *parent)
         QUrl(
             "qrc:/new/prefix1/Imagenes/Victoria.wav")
         );
+    sonidoDerrota->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/sonidoDerrota.wav"
+            )
+        );
     audioMenu->setVolume(0.35);
 
     audioNivel1->setVolume(0.1);
 
     audioNivel2->setVolume(0.35);
     audioVictoria->setVolume(1.0);
+    audioDerrota->setVolume(1.0);
 
     musicaMenu->setLoops(QMediaPlayer::Infinite);
     musicaNivel1->setLoops(QMediaPlayer::Infinite);
@@ -256,6 +265,12 @@ MainWindow::MainWindow(QWidget *parent)
         &MainWindow::mostrarVictoria
         );
     connect(
+        juego,
+        &Juego::jugadorPerdio,
+        this,
+        &MainWindow::mostrarDerrota
+        );
+    connect(
         ui->Ayuda,
         &QPushButton::clicked,
         this,
@@ -432,6 +447,32 @@ void MainWindow::mostrarVictoria()
         "QLabel{"
         "color:rgb(255,215,0);"
         "font-size:32px;"
+        "font-weight:bold;"
+        "background:transparent;"
+        "}"
+        );
+    ui->Pausa->show();
+
+    ui->Continuar->hide();
+}
+void MainWindow::mostrarDerrota()
+{
+    juego->pausarJuego();
+
+    musicaNivel1->stop();
+    sonidoVictoria->stop();
+
+    ui->labelGoles->hide();
+
+    sonidoDerrota->stop();
+    sonidoDerrota->play();
+    ui->tituloPausa->setText(
+        "HAS PERDIDO"
+        );
+    ui->tituloPausa->setStyleSheet(
+        "QLabel{"
+        "color:rgb(220,20,60);"
+        "font-size:40px;"
         "font-weight:bold;"
         "background:transparent;"
         "}"

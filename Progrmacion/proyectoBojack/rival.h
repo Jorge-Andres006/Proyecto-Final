@@ -55,6 +55,7 @@ public:
     void setPosicionesObstaculos(
         const std::vector<Vector2D>& posiciones
         );
+    bool obstaculoBloqueaDisparo();
 };
 
 #endif

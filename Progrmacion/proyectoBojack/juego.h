@@ -38,6 +38,7 @@ signals:
     void nivelCargado(int nivel);
     void golesActualizados(int goles);
     void nivelCompletado();
+    void jugadorPerdio();
 
 private slots:
     void actualizarJuego();

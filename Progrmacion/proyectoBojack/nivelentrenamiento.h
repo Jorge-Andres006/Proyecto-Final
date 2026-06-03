@@ -88,6 +88,9 @@ private:
     QMediaPlayer* sonidoGol;
 
     QAudioOutput* audioGol;
+    int vidas;
+    QGraphicsTextItem* textoVidas;
+    bool perdio;
 public:
     void moverJugador(
         const Vector2D& direccion
@@ -113,6 +116,7 @@ public:
     double getPotencia() const;
     int getGoles() const;
     void actualizarDisparo(double dt);
+    bool getPerdio() const;
 
 };
 

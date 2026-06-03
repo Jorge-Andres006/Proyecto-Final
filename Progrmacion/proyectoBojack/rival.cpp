@@ -1,4 +1,6 @@
 #include "rival.h"
+#include <cmath>
+
 
 using namespace std;
 
@@ -96,7 +98,8 @@ void Rival::razonar()
 
     if(tieneDisco && distanciaArco < 250)
     {
-        if(arcoBloqueado())
+        if(arcoBloqueado()||obstaculoBloqueaDisparo()
+            )
         {
             debeAtacar = false;
         }
@@ -152,15 +155,12 @@ void Rival::actuar(Disco &disco)
     }
     else
     {
-        Vector2D posicionFutura =
-            posicionDisco +
-            disco.getVelocidad() * 0.8;
+        Vector2D posicionFutura =posicionDisco +disco.getVelocidad() * 0.8;
 
-        direccion =
-            posicionFutura - posicion;
+        direccion =posicionFutura - posicion;
     }
     direccionActual =direccion.normalizar();
-    if(tieneDisco && arcoBloqueado())
+    if(tieneDisco &&(arcoBloqueado()||obstaculoBloqueaDisparo()))
     {
         Vector2D direccionArco =(
                 Vector2D(
@@ -276,11 +276,13 @@ void Rival::actuar(Disco &disco)
                 );
         bool hayColisionObstaculo = false;
 
-        for(const Vector2D& obstaculo :
-             posicionesObstaculos)
+        for(const Vector2D& obstaculo :posicionesObstaculos)
         {
+
+            Vector2D puntoColision =nuevaPosicion +Vector2D(0,30);
+
             if(
-                nuevaPosicion.distancia(
+                puntoColision.distancia(
                     obstaculo
                     ) < 35
                 )
@@ -290,11 +292,24 @@ void Rival::actuar(Disco &disco)
                 break;
             }
         }
+        if(hayColisionObstaculo)
+        {
+            Vector2D esquive(
+                -direccionNormalizada.getY(),
+                direccionNormalizada.getX()
+                );
+
+            setPosicion(
+                posicion +
+                esquive * velocidadRival
+                );
+
+            return;
+        }
 
         if(
-            !hayColisionObstaculo &&
             distanciaJugador >
-                radio * 2
+            radio * 2
             )
         {
             setPosicion(
@@ -304,12 +319,9 @@ void Rival::actuar(Disco &disco)
         else
         {
             Vector2D separacion =
-                (
-                    nuevaPosicion -
-                    posicionJugador
-                    ).normalizar();
+                (nuevaPosicion -posicionJugador).normalizar();
 
-            nuevaPosicion =posicionJugador +separacion *(radio * 2);
+            nuevaPosicion =posicionJugador +separacion * (radio * 2);
 
             setPosicion(
                 nuevaPosicion
@@ -431,6 +443,51 @@ void Rival::setPosicionesObstaculos(
     )
 {
     posicionesObstaculos = posiciones;
+}
+bool Rival::obstaculoBloqueaDisparo()
+{
+    Vector2D arco(
+        110,
+        315
+        );
+
+    for(const Vector2D& obstaculo :
+         posicionesObstaculos)
+    {
+        double distanciaLinea =
+            fabs(
+                (arco.getY() - posicion.getY()) *
+                    obstaculo.getX()
+                -
+                (arco.getX() - posicion.getX()) *
+                    obstaculo.getY()
+                +
+                arco.getX() * posicion.getY()
+                -
+                arco.getY() * posicion.getX()
+                )
+            /
+            sqrt(
+                pow(
+                    arco.getY() -
+                        posicion.getY(),
+                    2
+                    )
+                +
+                pow(
+                    arco.getX() -
+                        posicion.getX(),
+                    2
+                    )
+                );
+
+        if(distanciaLinea < 40)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 TipoEntidad Rival::getTipo() const
 {

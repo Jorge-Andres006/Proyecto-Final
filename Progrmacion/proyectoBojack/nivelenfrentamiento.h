@@ -65,6 +65,7 @@ private:
 
     QPixmap spriteSheet;
 
+    QPixmap spriteSheetObstaculos;
     QPixmap spriteSheetRival;
     QPixmap spriteSheetDisparo;
     QGraphicsPixmapItem* itemDisco;
@@ -91,7 +92,7 @@ private:
     double tiempoDisparoRival;
 
     double tiempoObstaculos;
-    std::vector<QGraphicsEllipseItem*> obstaculosVisuales;
+    std::vector<QGraphicsPixmapItem*> itemsObstaculos;
     std::vector<Vector2D> posicionesObstaculos;
 
     static constexpr double GRAVEDAD = 100;

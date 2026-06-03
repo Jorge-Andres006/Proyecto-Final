@@ -510,7 +510,14 @@ void Juego::actualizarJuego()
     {
         victoriaMostrada = true;
 
-        emit nivelCompletado();
+        if(nivel1->getPerdio())
+        {
+            emit jugadorPerdio();
+        }
+        else
+        {
+            emit nivelCompletado();
+        }
     }
 
 }

@@ -84,6 +84,9 @@ NivelEnfrentamiento::NivelEnfrentamiento(
     spriteSheetDisco =QPixmap(
             ":/new/prefix1/Imagenes/spritesDiscoSinFondo.png"
             );
+    spriteSheetObstaculos = QPixmap(
+        ":/new/prefix1/Imagenes/Obstaculos.png"
+        );
 
     itemJugador = nullptr;
     itemRival = nullptr;
@@ -210,8 +213,8 @@ void NivelEnfrentamiento::iniciar()
             arcoJugador.getPosicion().getY(),
             arcoJugador.getAncho(),
             arcoJugador.getAlto(),
-            QPen(Qt::red, 3),
-            QBrush(Qt::transparent)
+            QPen(Qt::NoPen),
+            QBrush(Qt::NoBrush)
             );
 
 
@@ -220,8 +223,8 @@ void NivelEnfrentamiento::iniciar()
             arcoRival.getPosicion().getY(),
             arcoRival.getAncho(),
             arcoRival.getAlto(),
-            QPen(Qt::blue, 3),
-            QBrush(Qt::transparent)
+            QPen(Qt::NoPen),
+            QBrush(Qt::NoBrush)
             );
 
     QPixmap hud(":/new/prefix1/Imagenes/BarraDePotencia.png");
@@ -382,7 +385,49 @@ void NivelEnfrentamiento::actualizar(double dt)
         posicionesObstaculos
         );
     rival.actuar(disco);
+
     mundo.actualizar(dt);
+    for(const Vector2D& obstaculo :
+         posicionesObstaculos)
+    {
+        if(
+            disco.getPosicion().distancia(
+                obstaculo
+                ) < 35
+            )
+        {
+            Vector2D direccionSalida =
+                (
+                    disco.getPosicion() -
+                    obstaculo
+                    ).normalizar();
+
+            disco.setPosicion(
+                obstaculo +
+                direccionSalida * 40
+                );
+
+            Vector2D velocidad =
+                disco.getVelocidad();
+
+            double temp =
+                velocidad.getX();
+
+            velocidad.setX(
+                -velocidad.getY()
+                );
+
+            velocidad.setY(
+                temp
+                );
+
+            disco.setVelocidad(
+                velocidad * 0.8
+                );
+
+            break;
+        }
+    }
     if(proyectilActivo)
     {
         tiempoProyectil += dt;
@@ -1075,7 +1120,57 @@ void NivelEnfrentamiento::generarObstaculos()
             x + 15,
             y + 15
             );
+        int spriteAleatorio =
+            rand() % 5;
 
+        QPixmap sprite;
+        switch(spriteAleatorio)
+        {
+        case 0:
+            sprite = spriteSheetObstaculos.copy(
+                370,
+                0,
+                160,
+                147
+                );
+            break;
+
+        case 1:
+            sprite = spriteSheetObstaculos.copy(
+                0,
+                290,
+                170,
+                147
+                );
+            break;
+
+        case 2:
+            sprite = spriteSheetObstaculos.copy(
+                170,
+                294,
+                120,
+                147
+                );
+            break;
+
+        case 3:
+            sprite = spriteSheetObstaculos.copy(
+                350,
+                294,
+                170,
+                147
+                );
+            break;
+
+        default:
+            sprite = spriteSheetObstaculos.copy(
+                350,
+                441,
+                180,
+                147
+                );
+            break;
+        }
         bool posicionValida = true;
 
         if(
@@ -1110,27 +1205,32 @@ void NivelEnfrentamiento::generarObstaculos()
             i--;
             continue;
         }
-        QGraphicsEllipseItem* obstaculo =
-            scene->addEllipse(
-                x,
-                y,
-                30,
-                30,
-                QPen(Qt::black),
-                QBrush(Qt::gray)
+        QGraphicsPixmapItem* itemObstaculo =
+            scene->addPixmap(
+                sprite
                 );
 
-        obstaculosVisuales.push_back(
-            obstaculo
+        itemObstaculo->setScale(
+            0.3
             );
+
+        itemObstaculo->setPos(
+            x - 30,
+            y - 30
+            );
+
+        itemsObstaculos.push_back(
+            itemObstaculo
+            );
+
         posicionesObstaculos.push_back(
-            Vector2D(x + 15, y + 15)
+            Vector2D(x, y)
             );
     }
 }
 void NivelEnfrentamiento::eliminarObstaculos()
 {
-    for(auto obstaculo : obstaculosVisuales)
+    for(auto obstaculo : itemsObstaculos)
     {
         scene->removeItem(
             obstaculo
@@ -1139,6 +1239,7 @@ void NivelEnfrentamiento::eliminarObstaculos()
         delete obstaculo;
     }
 
-    obstaculosVisuales.clear();
+    itemsObstaculos.clear();
+
     posicionesObstaculos.clear();
 }
