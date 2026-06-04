@@ -23,6 +23,18 @@ Rival::Rival() : Personaje() {
     direccionEsquive = 1;
 
     tiempoIntentoRobo = 0.0;
+    precisionJugador = 0.5;
+    agresividadJugador = 0.5;
+    potenciaPromedioJugador = 300;
+    rangoRobo = 40.0;
+    distanciaDisparo = 250.0;
+    velocidadIA = 1.3;
+
+    disparosJugador = 0;
+    golesJugador = 0;
+    robosJugador = 0;
+    multiplicadorVelocidad = 1.0;
+    multiplicadorDisparo = 1.0;
 
 }
 Rival::~Rival(){
@@ -47,6 +59,18 @@ Rival::Rival(const Vector2D &posicion,double radio,double velocidadMaxima,double
     ataquesFallidos = 0;
     direccionEsquive = 1;
     tiempoIntentoRobo = 0.0;
+    precisionJugador = 0.5;
+    agresividadJugador = 0.5;
+    potenciaPromedioJugador = 300;
+    rangoRobo = 40.0;
+    distanciaDisparo = 250.0;
+    velocidadIA = 1.3;
+
+    disparosJugador = 0;
+    golesJugador = 0;
+    robosJugador = 0;
+    multiplicadorVelocidad = 1.0;
+    multiplicadorDisparo = 1.0;
 
 }
 
@@ -80,9 +104,8 @@ void Rival::razonar()
                 posicionJugador
                 );
 
-        if(distanciaJugador <=40)
+        if(distanciaJugador <= rangoRobo)
         {
-
             debeRobar = true;
         }
     }
@@ -96,7 +119,7 @@ void Rival::razonar()
             centroArcoJugador
             );
 
-    if(tieneDisco && distanciaArco < 250)
+    if(tieneDisco && distanciaArco < distanciaDisparo)
     {
         if(arcoBloqueado()||obstaculoBloqueaDisparo()
             )
@@ -112,7 +135,43 @@ void Rival::razonar()
 
 void Rival::actuar(Disco &disco)
 {
+
     Vector2D direccion;
+
+    bool persiguiendoPowerUp = false;
+
+    if(
+        !tieneDisco &&
+        !jugadorTieneDisco &&
+        !posicionesPowerUps.empty()
+        )
+    {
+        Vector2D objetivo = posicionesPowerUps[0];
+
+        double mejorDistancia =
+            posicion.distancia(objetivo);
+
+        for(const Vector2D& p : posicionesPowerUps)
+        {
+            double distancia =
+                posicion.distancia(p);
+
+            if(distancia < mejorDistancia)
+            {
+                mejorDistancia = distancia;
+                objetivo = p;
+            }
+        }
+
+        if(mejorDistancia < 250)
+        {
+            direccion = objetivo - posicion;
+
+            persiguiendoPowerUp = true;
+        }
+    }
+    if(!persiguiendoPowerUp)
+    {
     if(tieneDisco)
     {
         direccion =
@@ -235,11 +294,14 @@ void Rival::actuar(Disco &disco)
         Vector2D direccionNormalizada =
             direccion.normalizar() * 1.5;
 
-        double velocidadRival = 1.3;
+        double velocidadRival =
+            velocidadIA *
+            multiplicadorVelocidad;
+
 
         if(tieneDisco)
         {
-            velocidadRival = 1.4;
+            velocidadRival += 0.1;
         }
 
         Vector2D nuevaPosicion =posicion +direccionNormalizada *velocidadRival;
@@ -328,29 +390,99 @@ void Rival::actuar(Disco &disco)
                 );
         }
     }
+    }
+    else
+    {
+        direccionActual =
+            direccion.normalizar();
+
+        double velocidadRival =
+            velocidadIA *
+            multiplicadorVelocidad;
+
+        if(tieneDisco)
+        {
+            velocidadRival += 0.1;
+        }
+
+        Vector2D nuevaPosicion =
+            posicion +
+            direccionActual * velocidadRival;
+
+        double radioRival = radio;
+
+        if(nuevaPosicion.getX() < 120 + radioRival)
+        {
+            nuevaPosicion.setX(
+                120 + radioRival
+                );
+        }
+
+        if(nuevaPosicion.getX() > 1150 - radioRival)
+        {
+            nuevaPosicion.setX(
+                1150 - radioRival
+                );
+        }
+
+        if(nuevaPosicion.getY() < 80 + radioRival)
+        {
+            nuevaPosicion.setY(
+                80 + radioRival
+                );
+        }
+
+        if(nuevaPosicion.getY() > 600 - radioRival)
+        {
+            nuevaPosicion.setY(
+                600 - radioRival
+                );
+        }
+
+        setPosicion(
+            nuevaPosicion
+            );
+
+        return;
+    }
 }
 
-void Rival::aprender() {
-
-    if (ataquesFallidos > ataquesExitosos) {
-
-        fuerzaDisparo *= 0.99;
+void Rival::aprender()
+{
+    if(disparosJugador > 0)
+    {
+        precisionJugador =
+            (double)golesJugador /
+            disparosJugador;
     }
 
-    else if (ataquesExitosos > ataquesFallidos) {
+    agresividadJugador =
+        robosJugador / 10.0;
 
-        fuerzaDisparo *= 1.01;
+    if(agresividadJugador > 1.0)
+    {
+        agresividadJugador = 1.0;
     }
 
-    if (fuerzaDisparo < 5.0) {
+    rangoRobo = 40.0;
+    distanciaDisparo = 250.0;
+    velocidadIA = 1.3;
 
-        fuerzaDisparo = 5.0;
+    if(precisionJugador > 0.4)
+    {
+        distanciaDisparo = 320.0;
     }
 
-    if (fuerzaDisparo > 40.0) {
-
-        fuerzaDisparo = 40.0;
+    if(agresividadJugador > 0.5)
+    {
+        rangoRobo = 60.0;
     }
+
+    if(potenciaPromedioJugador > 700)
+    {
+        velocidadIA = 1.8;
+    }
+
 }
 
 bool Rival::getDebeAtacar() const {
@@ -492,4 +624,39 @@ bool Rival::obstaculoBloqueaDisparo()
 TipoEntidad Rival::getTipo() const
 {
     return RIVAL;
+}
+
+void Rival::registrarDisparo(double potencia)
+{
+    disparosJugador++;
+
+    potenciaPromedioJugador =
+        ((potenciaPromedioJugador *
+          (disparosJugador - 1))
+         + potencia)
+        / disparosJugador;
+}
+void Rival::registrarGolJugador()
+{
+    golesJugador++;
+}
+void Rival::registrarRoboJugador()
+{
+    robosJugador++;
+}
+
+void Rival::setMultiplicadorVelocidad(double valor)
+{
+    multiplicadorVelocidad = valor;
+}
+
+void Rival::setMultiplicadorDisparo(double valor)
+{
+    multiplicadorDisparo = valor;
+}
+void Rival::setPosicionesPowerUps(
+    const std::vector<Vector2D>& posiciones
+    )
+{
+    posicionesPowerUps = posiciones;
 }

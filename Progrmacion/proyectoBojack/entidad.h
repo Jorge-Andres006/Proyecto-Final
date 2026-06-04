@@ -7,7 +7,8 @@ enum TipoEntidad
     JUGADOR,
     DISCO,
     OBSTACULO,
-    RIVAL
+    RIVAL,
+    POWERUP
 };
 class Entidad {
 protected:

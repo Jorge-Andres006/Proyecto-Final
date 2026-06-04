@@ -88,6 +88,18 @@ NivelEnfrentamiento::NivelEnfrentamiento(
         ":/new/prefix1/Imagenes/Obstaculos.png"
         );
 
+    spriteAlgodon = QPixmap(
+        ":/new/prefix1/Imagenes/Algodon.png"
+        );
+
+    spriteWhisky = QPixmap(
+        ":/new/prefix1/Imagenes/Whisky.png"
+        );
+
+    spriteBojack = QPixmap(
+        ":/new/prefix1/Imagenes/Bojack.png"
+        );
+
     itemJugador = nullptr;
     itemRival = nullptr;
 
@@ -116,6 +128,43 @@ NivelEnfrentamiento::NivelEnfrentamiento(
     velocidadInicialProyectil = 0.0;
     tiempoDisparoRival = 0.0;
     tiempoObstaculos = 0.0;
+    victoriaJugador = false;
+    tiempoAprendizaje = 0.0;
+
+    disparando = false;
+
+    disparoPendiente = false;
+
+    cargandoDisparo = false;
+
+    tieneDisco = false;
+    disparoParabolico = false;
+    proyectilActivo = false;
+    rivalDisparando = false;
+    victoriaJugador = false;
+    tiempoPowerUps = 0.0;
+
+    efectoWhisky = false;
+    efectoAlgodon = false;
+    efectoBojack = false;
+
+    gano = false;
+    perdio = false;
+
+    tiempoWhisky = 0.0;
+    tiempoAlgodon = 0.0;
+    tiempoBojack = 0.0;
+
+    siguienteSpawnBojack = 35.0;
+
+    efectoWhiskyRival = false;
+    efectoAlgodonRival = false;
+    efectoBojackRival = false;
+
+    tiempoWhiskyRival = 0.0;
+    tiempoAlgodonRival = 0.0;
+    tiempoBojackRival = 0.0;
+
     posicionInicialProyectil =
         Vector2D(
             0,
@@ -134,24 +183,68 @@ NivelEnfrentamiento::NivelEnfrentamiento(
             0
             );
 
-    disparando = false;
 
-    disparoPendiente = false;
 
-    cargandoDisparo = false;
+    audioNivel = new QAudioOutput();
 
-    tieneDisco = false;
-    disparoParabolico = false;
-    proyectilActivo = false;
-    rivalDisparando = false;
+    musicaNivel = new QMediaPlayer();
+
+    musicaNivel->setAudioOutput(
+        audioNivel
+        );
+
+    musicaNivel->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/MusicaNivel2.wav"
+            )
+        );
+    musicaNivel->setLoops(
+        QMediaPlayer::Infinite
+        );
+
+    audioVictoria = new QAudioOutput();
+    sonidoVictoria = new QMediaPlayer();
+
+    sonidoVictoria->setAudioOutput(
+        audioVictoria
+        );
+
+    sonidoVictoria->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/Victoria.wav"
+            )
+        );
+
+    audioDerrota = new QAudioOutput();
+    sonidoDerrota = new QMediaPlayer();
+
+    sonidoDerrota->setAudioOutput(
+        audioDerrota
+        );
+
+    sonidoDerrota->setSource(
+        QUrl(
+            "qrc:/new/prefix1/Imagenes/sonidoDerrota.wav"
+            )
+        );
 }
 NivelEnfrentamiento::~NivelEnfrentamiento()
 {
 
+        delete musicaNivel;
+        delete audioNivel;
 
 }
+
+bool NivelEnfrentamiento::getVictoriaJugador() const
+{
+    return victoriaJugador;
+}
+
 void NivelEnfrentamiento::iniciar()
 {
+
+    musicaNivel->play();
     mundo.agregarEntidad(
         &jugador
         );
@@ -262,10 +355,41 @@ void NivelEnfrentamiento::iniciar()
     textoCronometro->setZValue(
         100
         );
+
+    textoPowerUp = scene->addText("");
+
+    textoPowerUp->setDefaultTextColor(
+        Qt::yellow
+        );
+
+    textoPowerUp->setPos(
+        850,
+        20
+        );
+
+    textoPowerUp->setScale(
+        1.5
+        );
+
+    textoPowerUp->setZValue(
+        100
+        );
     generarObstaculos();
+    generarPowerUp();
+    generarPowerUp();
+    generarBojack();
 }
 void NivelEnfrentamiento::actualizar(double dt)
 {
+    tiempoAprendizaje += dt;
+
+    if(tiempoAprendizaje >= 15.0)
+    {
+        rival.aprender();
+
+        tiempoAprendizaje = 0.0;
+    }
+
     tiempo += dt;
     double tiempoRestante =240 - tiempo;
 
@@ -299,11 +423,20 @@ void NivelEnfrentamiento::actualizar(double dt)
     textoCronometro->setPlainText(
         textoTiempo
         );
-    if(tiempo >= 240)
+    if(tiempo >= 240.0)
     {
-        terminado = true;
+        if(golesJugador > golesRival)
+        {
+            gano = true;
+        }
+        else
+        {
+            perdio = true;
+        }
 
+        finalizar();
     }
+
     tiempoObstaculos += dt;
 
     if(tiempoObstaculos >= 10.0)
@@ -363,10 +496,28 @@ void NivelEnfrentamiento::actualizar(double dt)
             barraPotencia->setBrush(Qt::red);
         }
     }
+    std::vector<Vector2D> posicionesPowerUpsActivos;
+
+    for(size_t i = 0; i < powerUps.size(); i++)
+    {
+        if(powerUps[i].estaActivo())
+        {
+            posicionesPowerUpsActivos.push_back(
+                powerUps[i].getPosicion()
+                );
+        }
+    }
+
+    rival.setPosicionesPowerUps(
+        posicionesPowerUpsActivos
+        );
     rival.percibir(
         disco,jugador, tieneDisco
         );
 
+    rival.setPosicionesPowerUps(
+        posicionesPowerUpsActivos
+        );
     rival.razonar();
     if(
         rival.getDebeRobar() &&
@@ -387,6 +538,7 @@ void NivelEnfrentamiento::actualizar(double dt)
     rival.actuar(disco);
 
     mundo.actualizar(dt);
+    actualizarPowerUps();
     for(const Vector2D& obstaculo :
          posicionesObstaculos)
     {
@@ -710,10 +862,143 @@ void NivelEnfrentamiento::actualizar(double dt)
             disco.getPosicion().getY() - 18
             );
     }
+
+    tiempoPowerUps += dt;
+
+    if(tiempoPowerUps >= 15.0)
+    {
+        generarPowerUp();
+
+        tiempoPowerUps = 0.0;
+    }
+
+    if(tiempo >= siguienteSpawnBojack)
+    {
+        generarBojack();
+
+        siguienteSpawnBojack += 35.0;
+    }
+
+    if(efectoWhisky)
+    {
+        tiempoWhisky -= dt;
+
+        if(tiempoWhisky <= 0)
+        {
+            efectoWhisky = false;
+        }
+    }
+
+    if(efectoAlgodon)
+    {
+        tiempoAlgodon -= dt;
+
+        if(tiempoAlgodon <= 0)
+        {
+            efectoAlgodon = false;
+        }
+    }
+
+    if(efectoBojack)
+    {
+        tiempoBojack -= dt;
+
+        if(tiempoBojack <= 0)
+        {
+            efectoBojack = false;
+
+            musicaNivel->setPlaybackRate(
+                1.0
+                );
+        }
+    }
+
+    QString texto = "";
+    if(efectoWhisky)
+    {
+        textoPowerUp->setDefaultTextColor(
+            QColor(255,215,0)
+            );
+    }
+    else if(efectoAlgodon)
+    {
+        textoPowerUp->setDefaultTextColor(
+            QColor(255,105,180)
+            );
+    }
+    else if(efectoBojack)
+    {
+        textoPowerUp->setDefaultTextColor(
+            QColor(255,0,0)
+            );
+    }
+
+    if(efectoBojack)
+    {
+        texto =
+            "BOJACK: " +
+            QString::number(
+                static_cast<int>(tiempoBojack)
+                );
+    }
+    else if(efectoWhisky)
+    {
+        texto =
+            "WHISKY: " +
+            QString::number(
+                static_cast<int>(tiempoWhisky)
+                );
+    }
+    else if(efectoAlgodon)
+    {
+        texto =
+            "ALGODON: " +
+            QString::number(
+                static_cast<int>(tiempoAlgodon)
+                );
+    }
+    textoPowerUp->setPlainText(
+        texto
+        );
+
+    if(efectoWhiskyRival)
+    {
+        tiempoWhiskyRival -= dt;
+
+        if(tiempoWhiskyRival <= 0)
+        {
+            efectoWhiskyRival = false;
+            rival.setMultiplicadorVelocidad(1.0);
+        }
+    }
+
+    if(efectoAlgodonRival)
+    {
+        tiempoAlgodonRival -= dt;
+
+        if(tiempoAlgodonRival <= 0)
+        {
+            efectoAlgodonRival = false;
+            rival.setMultiplicadorDisparo(1.0);
+        }
+    }
+
+    if(efectoBojackRival)
+    {
+        tiempoBojackRival -= dt;
+
+        if(tiempoBojackRival <= 0)
+        {
+            efectoBojackRival = false;
+            rival.setMultiplicadorVelocidad(1.0);
+            rival.setMultiplicadorDisparo(1.0);
+        }
+    }
 }
 void NivelEnfrentamiento::finalizar()
 {
     terminado = true;
+    musicaNivel->stop();
 }
 void NivelEnfrentamiento::iniciarCarga()
 {
@@ -751,6 +1036,7 @@ void NivelEnfrentamiento::detenerCarga()
     direccionDisparo = direccionJugador;
 
     potenciaDisparo = potencia;
+    rival.registrarDisparo(potencia);
 
 }
 
@@ -822,9 +1108,19 @@ void NivelEnfrentamiento::moverJugador(
     }
     double velocidadJugador = 0.8;
 
+    if(efectoWhisky)
+    {
+        velocidadJugador *= 1.5;
+    }
+
     if(tieneDisco)
     {
         velocidadJugador =0.6;
+    }
+
+    if(efectoBojack)
+    {
+        velocidadJugador *= 2.0;
     }
 
     Vector2D nuevaPosicion =jugador.getPosicion() +direccion * velocidadJugador;
@@ -1004,9 +1300,21 @@ void NivelEnfrentamiento::actualizarDisparo(
             }
             else
             {
+                double multiplicador = 1.0;
+
+                if(efectoAlgodon)
+                {
+                    multiplicador = 1.5;
+                }
+
+                if(efectoBojack)
+                {
+                    multiplicador *= 2.0;
+                }
+
                 disco.setVelocidad(
                     direccionDisparo *
-                    (potenciaDisparo * 5)
+                    (potenciaDisparo * 5 * multiplicador)
                     );
             }
 
@@ -1057,17 +1365,33 @@ void NivelEnfrentamiento::reiniciarDisco()
 }
 void NivelEnfrentamiento::verificarGol()
 {
-    if(arcoRival.detectarGol(disco))
-    {
-        golesJugador++;
-        reiniciarDisco();
-    }
-
     if(arcoJugador.detectarGol(disco))
     {
         golesRival++;
 
         reiniciarDisco();
+
+        if(golesRival >= 10)
+        {
+            perdio = true;
+
+            finalizar();
+        }
+    }
+
+    if(arcoRival.detectarGol(disco))
+    {
+        golesJugador++;
+        rival.registrarGolJugador();
+
+        reiniciarDisco();
+
+        if(golesJugador >= 10)
+        {
+            gano = true;
+
+            finalizar();
+        }
     }
 }
 void NivelEnfrentamiento::activarDisparoParabolico(){
@@ -1081,16 +1405,23 @@ void NivelEnfrentamiento::intentarRobo()
             rival.getPosicion()
             );
 
-    if(distancia > RANGO_ROBO)
+    double rangoRobo = RANGO_ROBO;
+
+    if(efectoBojack)
+    {
+        rangoRobo *= 2.0;
+    }
+
+    if(distancia > rangoRobo)
     {
         return;
     }
-
     if(rival.getTieneDisco())
     {
         rival.setTieneDisco(false);
 
         tieneDisco = true;
+        rival.registrarRoboJugador();
 
         tiempoRecogerDisco = 0.2;
     }
@@ -1242,4 +1573,234 @@ void NivelEnfrentamiento::eliminarObstaculos()
     itemsObstaculos.clear();
 
     posicionesObstaculos.clear();
+}
+
+void NivelEnfrentamiento::generarPowerUp()
+{
+    TipoPowerUp tipo;
+
+    if(rand() % 100 < 50)
+    {
+        tipo = WHISKY;
+    }
+    else
+    {
+        tipo = ALGODON;
+    }
+
+    double x =
+        LIMITE_IZQUIERDO +
+        rand() %
+            static_cast<int>(
+                LIMITE_DERECHO -
+                LIMITE_IZQUIERDO
+                );
+
+    double y =
+        LIMITE_SUPERIOR +
+        rand() %
+            static_cast<int>(
+                LIMITE_INFERIOR -
+                LIMITE_SUPERIOR
+                );
+
+    powerUps.push_back(
+        PowerUp(
+            tipo,
+            Vector2D(x,y)
+            )
+        );
+
+    QPixmap sprite;
+
+    if(tipo == WHISKY)
+    {
+        sprite = spriteWhisky;
+    }
+    else
+    {
+        sprite = spriteAlgodon;
+    }
+
+    QGraphicsPixmapItem* item =
+        scene->addPixmap(sprite);
+
+    item->setScale(0.08);
+
+    item->setPos(
+        x - 25,
+        y - 25
+        );
+
+    item->setZValue(20);
+
+    itemsPowerUps.push_back(item);
+}
+void NivelEnfrentamiento::generarBojack()
+{
+    double x =
+        LIMITE_IZQUIERDO +
+        rand() %
+            static_cast<int>(
+                LIMITE_DERECHO -
+                LIMITE_IZQUIERDO
+                );
+
+    double y =
+        LIMITE_SUPERIOR +
+        rand() %
+            static_cast<int>(
+                LIMITE_INFERIOR -
+                LIMITE_SUPERIOR
+                );
+
+    powerUps.push_back(
+        PowerUp(
+            BOJACK,
+            Vector2D(x,y)
+            )
+        );
+
+    QGraphicsPixmapItem* item =
+        scene->addPixmap(
+            spriteBojack
+            );
+
+    item->setScale(0.07);
+
+    item->setPos(
+        x - 25,
+        y - 25
+        );
+
+    item->setZValue(25);
+
+    itemsPowerUps.push_back(item);
+}
+
+void NivelEnfrentamiento::actualizarPowerUps()
+{
+    for(size_t i = 0; i < powerUps.size(); i++)
+    {
+        if(!powerUps[i].estaActivo())
+        {
+            continue;
+        }
+
+        if(
+            jugador.colisionaCon(
+                powerUps[i]
+                )
+            )
+        {
+            aplicarPowerUp(
+                powerUps[i].getTipoPowerUp()
+                );
+
+            powerUps[i].desactivar();
+
+            scene->removeItem(
+                itemsPowerUps[i]
+                );
+
+            delete itemsPowerUps[i];
+
+            itemsPowerUps[i] = nullptr;
+        }
+        if(rival.colisionaCon(powerUps[i]))
+        {
+            aplicarPowerUpRival(
+                powerUps[i].getTipoPowerUp()
+                );
+
+            powerUps[i].desactivar();
+
+            scene->removeItem(
+                itemsPowerUps[i]
+                );
+
+            delete itemsPowerUps[i];
+
+            itemsPowerUps[i] = nullptr;
+        }
+
+    }
+}
+void NivelEnfrentamiento::aplicarPowerUp(
+    TipoPowerUp tipo
+    )
+{
+    switch(tipo)
+    {
+
+    case WHISKY:
+
+        efectoWhisky = true;
+        tiempoWhisky = 10.0;
+
+        break;
+
+    case ALGODON:
+
+        efectoAlgodon = true;
+        tiempoAlgodon = 10.0;
+
+        break;
+
+    case BOJACK:
+
+        efectoBojack = true;
+        tiempoBojack = 8.0;
+
+        musicaNivel->setPlaybackRate(
+            1.5
+            );
+
+        break;
+    }
+}
+bool NivelEnfrentamiento::getGano() const
+{
+    return gano;
+}
+
+bool NivelEnfrentamiento::getPerdio() const
+{
+    return perdio;
+}
+int NivelEnfrentamiento::getGolesJugador() const
+{
+    return golesJugador;
+}
+int NivelEnfrentamiento::getGolesRival() const
+{
+    return golesRival;
+}
+
+void NivelEnfrentamiento::aplicarPowerUpRival(
+    TipoPowerUp tipo
+    )
+{
+    switch(tipo)
+    {
+    case WHISKY:
+
+        rival.setMultiplicadorVelocidad(1.5);
+
+        break;
+
+    case ALGODON:
+
+        rival.setMultiplicadorDisparo(1.5);
+
+        break;
+
+    case BOJACK:
+
+        rival.setMultiplicadorVelocidad(2.0);
+
+        rival.setMultiplicadorDisparo(2.0);
+
+        break;
+    }
 }

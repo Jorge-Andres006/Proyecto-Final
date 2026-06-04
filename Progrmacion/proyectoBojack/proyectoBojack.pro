@@ -22,6 +22,7 @@ SOURCES += \
     nivelentrenamiento.cpp \
     obstaculo.cpp \
     personaje.cpp \
+    powerup.cpp \
     rival.cpp \
     vector2d.cpp
 
@@ -38,6 +39,7 @@ HEADERS += \
     nivelentrenamiento.h \
     obstaculo.h \
     personaje.h \
+    powerup.h \
     rival.h \
     vector2d.h
 

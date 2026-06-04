@@ -39,6 +39,10 @@ signals:
     void golesActualizados(int goles);
     void nivelCompletado();
     void jugadorPerdio();
+    void marcadorNivel2Actualizado(
+        int golesJugador,
+        int golesRival
+        );
 
 private slots:
     void actualizarJuego();
@@ -78,6 +82,7 @@ private:
     bool teclaC;
 
     bool victoriaMostrada;
+    bool resultadoNivel2Mostrado;
 
 };
 

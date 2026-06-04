@@ -17,5 +17,9 @@
         <file>Imagenes/SpriteDisparoBojackH.png</file>
         <file>Imagenes/mr.penuatButter.png</file>
         <file>Imagenes/sonidoDerrota.wav</file>
+        <file>Imagenes/MusicaNivel2.wav</file>
+        <file>Imagenes/Algodon.png</file>
+        <file>Imagenes/Bojack.png</file>
+        <file>Imagenes/Whisky.png</file>
     </qresource>
 </RCC>

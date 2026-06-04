@@ -38,6 +38,7 @@ Juego::Juego(
     teclaS = false;
     teclaD = false;
     victoriaMostrada=false;
+    resultadoNivel2Mostrado = false;
 }
 
 void Juego::mostrarMenu()
@@ -134,6 +135,7 @@ void Juego::iniciarNivel1()
 void Juego::iniciarNivel2()
 {
     victoriaMostrada = false;
+    resultadoNivel2Mostrado = false;
 
     timerJuego->stop();
 
@@ -518,6 +520,30 @@ void Juego::actualizarJuego()
         {
             emit nivelCompletado();
         }
+    }
+    if(
+        nivel2 &&
+        nivel2->estaTerminado() &&
+        !resultadoNivel2Mostrado
+        )
+    {
+        resultadoNivel2Mostrado = true;
+
+        if(nivel2->getGano())
+        {
+            emit nivelCompletado();
+        }
+        else
+        {
+            emit jugadorPerdio();
+        }
+    }
+    if(nivel2)
+    {
+        emit marcadorNivel2Actualizado(
+            nivel2->getGolesJugador(),
+            nivel2->getGolesRival()
+            );
     }
 
 }

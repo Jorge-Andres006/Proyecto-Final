@@ -6,10 +6,13 @@
 #include "disco.h"
 #include "arco.h"
 #include "rival.h"
+#include "powerup.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsTextItem>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 class NivelEnfrentamiento : public Nivel
 {
@@ -80,6 +83,10 @@ private:
     QGraphicsRectItem* itemArcoJugador;
     QGraphicsRectItem* itemArcoRival;
 
+    QPixmap spriteAlgodon;
+    QPixmap spriteWhisky;
+    QPixmap spriteBojack;
+
     bool disparoParabolico;
     bool proyectilActivo;
 
@@ -91,6 +98,27 @@ private:
     bool rivalDisparando;
     double tiempoDisparoRival;
 
+    std::vector<PowerUp> powerUps;
+
+    std::vector<QGraphicsPixmapItem*> itemsPowerUps;
+
+    QPixmap spritePowerUps;
+
+    double tiempoPowerUps;
+
+    bool efectoWhisky;
+    bool efectoAlgodon;
+    bool efectoBojack;
+    bool victoriaJugador;
+    bool gano;
+    bool perdio;
+
+    double tiempoWhisky;
+    double tiempoAlgodon;
+    double tiempoBojack;
+
+    double siguienteSpawnBojack;
+
     double tiempoObstaculos;
     std::vector<QGraphicsPixmapItem*> itemsObstaculos;
     std::vector<Vector2D> posicionesObstaculos;
@@ -98,6 +126,26 @@ private:
     static constexpr double GRAVEDAD = 100;
     static constexpr double ANGULO_PARABOLICO = 45.0;
     const double RANGO_ROBO = 40.3;
+    QGraphicsTextItem* textoPowerUp;
+
+    QMediaPlayer* musicaNivel;
+    QAudioOutput* audioNivel;
+    QMediaPlayer* sonidoVictoria;
+    QAudioOutput* audioVictoria;
+
+    QMediaPlayer* sonidoDerrota;
+    QAudioOutput* audioDerrota;
+    QGraphicsTextItem* textoMarcador;
+    double tiempoAprendizaje;
+
+    bool efectoWhiskyRival;
+    bool efectoAlgodonRival;
+    bool efectoBojackRival;
+
+    double tiempoWhiskyRival;
+    double tiempoAlgodonRival;
+    double tiempoBojackRival;
+
 
 
 
@@ -107,6 +155,8 @@ public:
         double ancho,
         double alto,
         QGraphicsScene* scene
+
+
         );
 
     ~NivelEnfrentamiento();
@@ -132,6 +182,20 @@ public:
 
     void generarObstaculos();
     void eliminarObstaculos();
+
+    void generarPowerUp();
+    void generarBojack();
+
+
+    void actualizarPowerUps();
+
+    void aplicarPowerUp(TipoPowerUp tipo);
+    void aplicarPowerUpRival(TipoPowerUp tipo);
+    bool getVictoriaJugador() const;
+    bool getGano() const;
+    bool getPerdio() const;
+    int getGolesJugador() const;
+    int getGolesRival() const;
 };
 
 #endif

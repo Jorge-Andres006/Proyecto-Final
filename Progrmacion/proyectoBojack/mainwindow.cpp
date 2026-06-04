@@ -224,17 +224,15 @@ MainWindow::MainWindow(QWidget *parent)
             if(nivel == 1)
             {
                 ui->labelGoles->show();
-
                 musicaNivel1->play();
             }
             else if(nivel == 2)
             {
-                ui->labelGoles->hide();
-
+                ui->labelGoles->show();
                 musicaNivel2->play();
             }
         }
-    );
+        );
     connect(
         juego,
         &Juego::golesActualizados,
@@ -290,6 +288,19 @@ MainWindow::MainWindow(QWidget *parent)
             ui->AyudaPanel->hide();
 
             ui->Pausa->show();
+        }
+        );
+    connect(
+        juego,
+        &Juego::marcadorNivel2Actualizado,
+        this,
+        [this](int jugador, int rival)
+        {
+            ui->labelGoles->setText(
+                QString("%1 - %2")
+                    .arg(jugador)
+                    .arg(rival)
+                );
         }
         );
 }
@@ -374,7 +385,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         {
             ui->Pausa->hide();
 
-            if(nivelActual == 1)
+            if(enNivel)
             {
                 ui->labelGoles->show();
             }
@@ -437,16 +448,17 @@ void MainWindow::mostrarVictoria()
     juego->pausarJuego();
 
     musicaNivel1->stop();
+    musicaNivel2->stop();
     sonidoVictoria->stop();
     ui->labelGoles->hide();
     sonidoVictoria->play();
     ui->tituloPausa->setText(
-        " NIVEL COMPLETADO "
+        " HAS GANADO "
         );
     ui->tituloPausa->setStyleSheet(
         "QLabel{"
-        "color:rgb(255,215,0);"
-        "font-size:32px;"
+        "color:rgb(0,255,0);"
+        "font-size:40px;"
         "font-weight:bold;"
         "background:transparent;"
         "}"
@@ -460,6 +472,7 @@ void MainWindow::mostrarDerrota()
     juego->pausarJuego();
 
     musicaNivel1->stop();
+    musicaNivel2->stop();
     sonidoVictoria->stop();
 
     ui->labelGoles->hide();
@@ -471,7 +484,7 @@ void MainWindow::mostrarDerrota()
         );
     ui->tituloPausa->setStyleSheet(
         "QLabel{"
-        "color:rgb(220,20,60);"
+        "color:rgb(255,0,0);"
         "font-size:40px;"
         "font-weight:bold;"
         "background:transparent;"

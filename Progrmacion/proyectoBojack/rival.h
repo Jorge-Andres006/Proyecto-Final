@@ -23,7 +23,20 @@ private:
     bool debeRobar;
     bool acabaDeDisparar;
     std::vector<Vector2D> posicionesObstaculos;
+    std::vector<Vector2D> posicionesPowerUps;
 
+    double rangoRobo;
+    double distanciaDisparo;
+    double velocidadIA;
+    double precisionJugador;
+    double agresividadJugador;
+    double potenciaPromedioJugador;
+
+    int disparosJugador;
+    int golesJugador;
+    int robosJugador;
+    double multiplicadorVelocidad;
+    double multiplicadorDisparo;
 public:
 
     Rival();
@@ -55,7 +68,15 @@ public:
     void setPosicionesObstaculos(
         const std::vector<Vector2D>& posiciones
         );
+    void setPosicionesPowerUps(
+        const std::vector<Vector2D>& posiciones
+        );
     bool obstaculoBloqueaDisparo();
+    void registrarDisparo(double potencia);
+    void registrarGolJugador();
+    void registrarRoboJugador();
+    void setMultiplicadorVelocidad(double valor);
+    void setMultiplicadorDisparo(double valor);
 };
 
 #endif
