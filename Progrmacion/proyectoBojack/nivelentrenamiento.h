@@ -91,6 +91,9 @@ private:
     int vidas;
     QGraphicsTextItem* textoVidas;
     bool perdio;
+    bool dificultadDificil;
+    int golesParaGanar;
+    double tiempoSpawnMaximo;
 public:
     void moverJugador(
         const Vector2D& direccion
@@ -118,6 +121,7 @@ public:
     void actualizarDisparo(double dt);
     bool getPerdio() const;
 
+    void setDificultadDificil(bool dificil);
 };
 
 #endif

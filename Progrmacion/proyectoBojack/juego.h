@@ -33,6 +33,8 @@ public:
     void teclaPresionada(int tecla);
     void teclaLiberada(int tecla);
     void pausarJuego();
+    void setDificultadDificil(bool dificil);
+    bool getDificultadDificil() const;
 signals:
 
     void nivelCargado(int nivel);
@@ -83,6 +85,7 @@ private:
 
     bool victoriaMostrada;
     bool resultadoNivel2Mostrado;
+    bool dificultadDificil;
 
 };
 

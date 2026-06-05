@@ -82,6 +82,9 @@ NivelEntrenamiento::NivelEntrenamiento(
     tiempoDisparo = 0.0;
     potenciaDisparo = 0.0;
     vidas = 5;
+    golesParaGanar = 7;
+
+    tiempoSpawnMaximo = 0.7;
 
 
     direccionDisparo = Vector2D(1,0);
@@ -92,6 +95,7 @@ NivelEntrenamiento::NivelEntrenamiento(
     tieneDisco = false;
     invulnerable = false;
     perdio = false;
+    dificultadDificil = false;
 
     tiempoInvulnerabilidad = 0.0;
     direccionJugador = Vector2D(1,0);
@@ -146,7 +150,14 @@ void NivelEntrenamiento::iniciar()
 {
     mundo.agregarEntidad(&disco);
     mundo.agregarEntidad(&jugador);
-
+    if(dificultadDificil)
+    {
+        vidas = 1;
+    }
+    else
+    {
+        vidas = 5;
+    }
     Obstaculo* obstaculo =new Obstaculo(
             Vector2D(
                 1100,
@@ -249,9 +260,12 @@ void NivelEntrenamiento::iniciar()
 
     hudGolesItem->setScale(0.15);
     textoVidas = scene->addText(
-        "Vidas: 5"
+        QString(
+            "Vidas: %1"
+            ).arg(
+                vidas
+                )
         );
-
     QFont fuenteVidas(
         "Segoe UI",
         24,
@@ -313,7 +327,7 @@ void NivelEntrenamiento::actualizar(double dt)
         }
     }
     tiempoSpawnObstaculos += dt;
-    if(tiempoSpawnObstaculos >= 0.7)
+    if(tiempoSpawnObstaculos >=tiempoSpawnMaximo)
     {
         generarObstaculo();
 
@@ -402,7 +416,14 @@ void NivelEntrenamiento::actualizar(double dt)
         if(puntoColision.distancia(obstaculo->getPosicion()) < 30.0){
             if(!invulnerable)
             {
-                vidas--;
+                if(dificultadDificil)
+                {
+                    vidas = 0;
+                }
+                else
+                {
+                    vidas--;
+                }
 
                 textoVidas->setPlainText(
                     "Vidas: " +
@@ -425,8 +446,12 @@ void NivelEntrenamiento::actualizar(double dt)
                         Vector2D(0,0)
                         );
                 }
-                invulnerable = true;
-                tiempoInvulnerabilidad = 2.0;
+                if(!dificultadDificil)
+                {
+                    invulnerable = true;
+
+                    tiempoInvulnerabilidad = 2.0;
+                }
                 sonidoTodd->stop();
                 sonidoTodd->play();
             }
@@ -587,7 +612,7 @@ void NivelEntrenamiento::verificarGol()
     {
         goles++;
 
-        if(goles < 7)
+        if(goles < golesParaGanar)
         {
             sonidoGol->stop();
 
@@ -616,7 +641,7 @@ void NivelEntrenamiento::verificarGol()
 
         tiempoRecogerDisco = 0.5;
 
-        if(goles >= 7)
+        if(goles >=golesParaGanar)
         {
 
             finalizar();
@@ -1037,4 +1062,27 @@ void NivelEntrenamiento::actualizarDisparo(double dt)
             147
             )
         );
+}
+void NivelEntrenamiento::setDificultadDificil(
+    bool dificil
+    )
+{
+    dificultadDificil = dificil;
+
+    if(dificultadDificil)
+    {
+        vidas = 1;
+
+        golesParaGanar = 15;
+
+        tiempoSpawnMaximo = 0.4;
+    }
+    else
+    {
+        vidas = 5;
+
+        golesParaGanar = 7;
+
+        tiempoSpawnMaximo = 0.7;
+    }
 }

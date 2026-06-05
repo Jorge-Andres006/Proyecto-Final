@@ -39,6 +39,7 @@ Juego::Juego(
     teclaD = false;
     victoriaMostrada=false;
     resultadoNivel2Mostrado = false;
+    dificultadDificil = false;
 }
 
 void Juego::mostrarMenu()
@@ -126,7 +127,9 @@ void Juego::iniciarNivel1()
         720,
         scene
         );
-
+    nivel1->setDificultadDificil(
+        dificultadDificil
+        );
     nivel1->iniciar();
 
     timerJuego->start(16);
@@ -554,4 +557,14 @@ NivelEntrenamiento* Juego::getNivel1()
 void Juego::pausarJuego()
 {
     timerJuego->stop();
+}
+void Juego::setDificultadDificil(
+    bool dificil
+    )
+{
+    dificultadDificil = dificil;
+}
+bool Juego::getDificultadDificil() const
+{
+    return dificultadDificil;
 }

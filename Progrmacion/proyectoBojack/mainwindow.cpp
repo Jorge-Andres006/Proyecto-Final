@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->labelGoles->hide();
     ui->Pausa->hide();
     ui->AyudaPanel->hide();
+    ui->panelDificultad->hide();
     resize(1280, 720);
 
     enNivel = false;
@@ -80,7 +81,46 @@ MainWindow::MainWindow(QWidget *parent)
         ui->botonNivel1,
         &QPushButton::clicked,
         this,
-        &MainWindow::iniciarNivel1
+        [this]()
+        {
+            ui->botonNivel1->hide();
+
+            ui->botonNivel2->hide();
+
+            ui->botonSalir->hide();
+
+            ui->panelDificultad->show();
+        }
+        );
+    connect(
+        ui->btnFacil,
+        &QPushButton::clicked,
+        this,
+        [this]()
+        {
+            juego->setDificultadDificil(
+                false
+                );
+
+            ui->panelDificultad->hide();
+
+            iniciarNivel1();
+        }
+        );
+    connect(
+        ui->btnDificil,
+        &QPushButton::clicked,
+        this,
+        [this]()
+        {
+            juego->setDificultadDificil(
+                true
+                );
+
+            ui->panelDificultad->hide();
+
+            iniciarNivel1();
+        }
         );
     connect(
         ui->botonNivel2,
@@ -239,11 +279,20 @@ MainWindow::MainWindow(QWidget *parent)
         this,
         [this](int goles)
         {
+            int meta = 7;
+
+            if(juego->getDificultadDificil())
+            {
+                meta = 15;
+            }
+
             ui->labelGoles->setText(
-                QString("%1/7").arg(goles)
+                QString("%1/%2")
+                    .arg(goles)
+                    .arg(meta)
                 );
 
-            if(goles >= 7)
+            if(goles >=(juego->getDificultadDificil() ? 15 : 7))
             {
                 ui->labelGoles->setStyleSheet(
                     "QLabel{"
@@ -441,6 +490,7 @@ void MainWindow::volverMenu()
     ui->botonNivel1->show();
     ui->botonNivel2->show();
     ui->botonSalir->show();
+    ui->panelDificultad->hide();
 
 }
 void MainWindow::mostrarVictoria()
